@@ -6,22 +6,24 @@ Static landing page for **InRange AI** — served from `https://getinrange.ai` (
 
 ```
 inrange-landing/
-├── index.html          # Hero + values + Founders Pass + waitlist + FAQ
-├── privacy.html        # Placeholder privacy policy
-├── terms.html          # Placeholder terms of service
-├── security.html       # Security posture + vuln-disclosure
-├── styles.css          # Liquid Glass-inspired minimal CSS
-├── main.js             # Waitlist form handler (Formspree-ready)
-├── _headers            # Cloudflare Pages security headers (CSP, HSTS, etc.)
-├── _redirects          # Cloudflare Pages redirect rules (.com → .ai)
-├── robots.txt          # SEO
-└── sitemap.xml         # SEO
+├── wrangler.toml       # Cloudflare Workers Static Assets config
+├── public/             # Everything served on the public URL
+│   ├── index.html      # Hero + values + Founders Pass + waitlist + FAQ
+│   ├── privacy.html    # Placeholder privacy policy
+│   ├── terms.html      # Placeholder terms of service
+│   ├── security.html   # Security posture + vuln-disclosure
+│   ├── styles.css      # Liquid Glass-inspired minimal CSS
+│   ├── main.js         # Waitlist form handler (Formspree wired to xdarwprw)
+│   ├── _headers        # Security headers (CSP, HSTS, etc.)
+│   ├── robots.txt      # SEO
+│   └── sitemap.xml     # SEO
+└── README.md
 ```
 
 ## Local preview
 
 ```bash
-python3 -m http.server 8080
+cd public && python3 -m http.server 8080
 open http://localhost:8080
 ```
 
