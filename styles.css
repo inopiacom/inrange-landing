@@ -1,20 +1,23 @@
 :root {
-  --bg-0: #06080f;
-  --bg-1: #0a0e1a;
-  --bg-2: #10162a;
-  --fg-0: #f5f7fb;
-  --fg-1: #c5cbd6;
-  --fg-2: #8a92a3;
-  --accent-1: #7c9cff;
-  --accent-2: #b98cff;
-  --accent-3: #62e0c7;
+  /* Warmer, softer dark palette — less "server room", more "cozy evening" */
+  --bg-0: #0f1220;
+  --bg-1: #161a2c;
+  --bg-2: #1d2238;
+  --fg-0: #f6f4ef;
+  --fg-1: #d0cec7;
+  --fg-2: #9a978e;
+  --accent-1: #8fa8ff;
+  --accent-2: #c99bff;
+  --accent-3: #82e6c9;
+  --warm-1: #ffb18a;  /* soft coral — the human touch */
+  --warm-2: #ffd2a8;  /* peach */
   --gold: #ffcf7a;
-  --card-bg: rgba(255, 255, 255, 0.04);
-  --card-border: rgba(255, 255, 255, 0.08);
-  --card-hover: rgba(255, 255, 255, 0.07);
+  --card-bg: rgba(255, 255, 255, 0.045);
+  --card-border: rgba(255, 255, 255, 0.09);
+  --card-hover: rgba(255, 255, 255, 0.08);
   --radius-lg: 24px;
   --radius-md: 14px;
-  --shadow-glow: 0 10px 60px -10px rgba(124, 156, 255, 0.35);
+  --shadow-glow: 0 10px 60px -10px rgba(255, 177, 138, 0.28);
 }
 
 * {
@@ -50,8 +53,9 @@ body {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(1200px 800px at 15% -10%, rgba(124, 156, 255, 0.18), transparent 60%),
-    radial-gradient(1000px 700px at 90% 10%, rgba(185, 140, 255, 0.14), transparent 60%),
+    radial-gradient(1200px 800px at 15% -10%, rgba(143, 168, 255, 0.16), transparent 60%),
+    radial-gradient(900px 700px at 90% 10%, rgba(255, 177, 138, 0.12), transparent 60%),
+    radial-gradient(700px 500px at 50% 100%, rgba(255, 210, 168, 0.08), transparent 60%),
     linear-gradient(180deg, var(--bg-0), var(--bg-1) 50%, var(--bg-0));
   z-index: -2;
 }
@@ -74,10 +78,10 @@ body {
 }
 
 .bg-blob-2 {
-  background: var(--accent-3);
+  background: var(--warm-1);
   bottom: -140px;
   left: -100px;
-  opacity: 0.22;
+  opacity: 0.20;
 }
 
 /* Nav */
@@ -449,6 +453,38 @@ details p {
   color: var(--fg-1);
   font-size: 15px;
   margin-top: 12px;
+}
+
+/* Founder belief statement — the "someone in your corner" moment */
+.belief {
+  padding: 40px 24px 60px;
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.belief-inner {
+  background:
+    linear-gradient(135deg, rgba(255, 177, 138, 0.10), rgba(143, 168, 255, 0.06)),
+    var(--card-bg);
+  border: 1px solid rgba(255, 177, 138, 0.24);
+  border-radius: var(--radius-lg);
+  padding: 40px 44px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.belief-quote {
+  font-size: clamp(19px, 2.2vw, 24px);
+  line-height: 1.5;
+  color: var(--fg-0);
+  font-weight: 500;
+  margin: 0 0 16px;
+}
+
+.belief-attrib {
+  font-size: 14px;
+  color: var(--warm-2);
+  letter-spacing: 0.02em;
 }
 
 /* Footer */
