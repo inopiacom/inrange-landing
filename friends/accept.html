@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Accept your invitation · InRange AI</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    .accept-wrap { max-width: 480px; margin: 0 auto; padding: 64px 24px; text-align: center; }
+    .accept-glyph { font-size: 56px; line-height: 1; }
+    .accept-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+                   border-radius: 20px; padding: 28px 24px; margin-top: 28px; backdrop-filter: blur(12px); }
+    .accept-cta { display: inline-block; background: #3fe0d0; color: #000; font-weight: 700;
+                  font-size: 17px; padding: 15px 36px; border-radius: 28px; text-decoration: none; margin-top: 8px; }
+    .accept-code { font-family: ui-monospace, Menlo, monospace; font-size: 15px; background: rgba(0,0,0,0.35);
+                   border-radius: 10px; padding: 10px 14px; word-break: break-all; margin: 12px 0; }
+    .accept-muted { opacity: 0.65; font-size: 14px; line-height: 1.5; }
+    .copy-btn { background: rgba(255,255,255,0.1); color: #fff; border: none; border-radius: 18px;
+                padding: 9px 20px; font-size: 14px; cursor: pointer; }
+    .copy-btn:active { background: rgba(255,255,255,0.2); }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <main class="accept-wrap">
+    <div class="accept-glyph">◐</div>
+    <h1 style="margin-top:12px;">Accept your invitation</h1>
+    <p class="accept-muted">Someone wants you on their InRange Cheer Team — you'll see their milestones and can cheer them on.</p>
+
+    <div class="accept-card" id="ios-block">
+      <p style="margin-top:0;">Have the InRange app? Open the invite directly:</p>
+      <a class="accept-cta" id="open-app" href="#">Open in InRange</a>
+      <p class="accept-muted" style="margin-top:20px;">
+        Don't have the app yet?<br/>
+        <a href="https://testflight.apple.com/join/j6umwvnr" style="color:#3fe0d0;">Install via TestFlight</a>,
+        sign in with Apple, then come back and tap the button above — or paste your code in
+        the app under <strong>Friends → “Have an invite code?”</strong>
+      </p>
+    </div>
+
+    <div class="accept-card hidden" id="other-block">
+      <p style="margin-top:0;"><strong>InRange AI is currently iPhone-only.</strong></p>
+      <p class="accept-muted">Open this link on your iPhone to accept the invitation.</p>
+    </div>
+
+    <div class="accept-card" id="code-block">
+      <p style="margin-top:0;" class="accept-muted">Your invite code:</p>
+      <div class="accept-code" id="token-display">—</div>
+      <button class="copy-btn" id="copy-btn">Copy code</button>
+      <p class="accept-muted" id="no-token-msg" style="display:none;">
+        This link is missing its invite code — ask your friend to send a fresh one from the app.
+      </p>
+    </div>
+
+    <p class="accept-muted" style="margin-top:28px;">
+      <a href="../" style="color:#3fe0d0;">getinrange.ai</a> · InRange is a wellness companion, not a medical device.
+    </p>
+  </main>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var token = params.get("token") || "";
+      var isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+
+      var display = document.getElementById("token-display");
+      var copyBtn = document.getElementById("copy-btn");
+      if (token) {
+        display.textContent = token;
+      } else {
+        display.style.display = "none";
+        copyBtn.style.display = "none";
+        document.getElementById("no-token-msg").style.display = "block";
+      }
+
+      if (!isiOS) {
+        document.getElementById("ios-block").classList.add("hidden");
+        document.getElementById("other-block").classList.remove("hidden");
+      } else {
+        document.getElementById("open-app").href =
+          "inrangeai://friends/accept?token=" + encodeURIComponent(token);
+      }
+
+      copyBtn.addEventListener("click", function () {
+        navigator.clipboard.writeText(token).then(function () {
+          copyBtn.textContent = "Copied ✓";
+          setTimeout(function () { copyBtn.textContent = "Copy code"; }, 2000);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

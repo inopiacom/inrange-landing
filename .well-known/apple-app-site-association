@@ -1,0 +1,12 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["X2QTFGMJ82.ai.getinrange.app"],
+        "components": [
+          { "/": "/friends/accept*", "comment": "Friend invite deep links" }
+        ]
+      }
+    ]
+  }
+}
