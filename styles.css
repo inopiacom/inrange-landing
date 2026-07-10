@@ -1,23 +1,23 @@
 :root {
-  /* Warmer, softer dark palette — less "server room", more "cozy evening" */
-  --bg-0: #0f1220;
-  --bg-1: #161a2c;
-  --bg-2: #1d2238;
-  --fg-0: #f6f4ef;
-  --fg-1: #d0cec7;
-  --fg-2: #9a978e;
-  --accent-1: #8fa8ff;
-  --accent-2: #c99bff;
-  --accent-3: #82e6c9;
-  --warm-1: #ffb18a;  /* soft coral — the human touch */
-  --warm-2: #ffd2a8;  /* peach */
-  --gold: #ffcf7a;
-  --card-bg: rgba(255, 255, 255, 0.045);
-  --card-border: rgba(255, 255, 255, 0.09);
-  --card-hover: rgba(255, 255, 255, 0.08);
-  --radius-lg: 24px;
-  --radius-md: 14px;
-  --shadow-glow: 0 10px 60px -10px rgba(255, 177, 138, 0.28);
+  /* Brand v2: warm & character-driven — cream, terracotta, monster mint */
+  --bg-0: #faf5ee;
+  --bg-1: #f4ece1;
+  --bg-2: #eee2d3;
+  --fg-0: #3a2e24;
+  --fg-1: #6b5d4f;
+  --fg-2: #98897a;
+  --accent-1: #e8804b;  /* terracotta — primary CTA */
+  --accent-2: #f2b380;  /* peach */
+  --accent-3: #2fae9c;  /* monster mint (signal) */
+  --warm-1: #e8804b;
+  --warm-2: #f2b380;
+  --gold: #e9b04c;
+  --card-bg: rgba(255, 255, 255, 0.72);
+  --card-border: rgba(58, 46, 36, 0.10);
+  --card-hover: rgba(255, 255, 255, 0.95);
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --shadow-glow: 0 12px 50px -12px rgba(232, 128, 75, 0.45);
 }
 
 * {
@@ -28,6 +28,10 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+h1, h2, h3, .brand-name {
+  font-family: 'Nunito', 'Inter', -apple-system, sans-serif;
 }
 
 body {
@@ -53,8 +57,8 @@ body {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(1200px 800px at 15% -10%, rgba(143, 168, 255, 0.16), transparent 60%),
-    radial-gradient(900px 700px at 90% 10%, rgba(255, 177, 138, 0.12), transparent 60%),
+    radial-gradient(1200px 800px at 15% -10%, rgba(242, 179, 128, 0.35), transparent 60%),
+    radial-gradient(900px 700px at 90% 10%, rgba(232, 128, 75, 0.18), transparent 60%),
     radial-gradient(700px 500px at 50% 100%, rgba(255, 210, 168, 0.08), transparent 60%),
     linear-gradient(180deg, var(--bg-0), var(--bg-1) 50%, var(--bg-0));
   z-index: -2;
@@ -67,7 +71,7 @@ body {
   border-radius: 50%;
   filter: blur(120px);
   z-index: -1;
-  opacity: 0.35;
+  opacity: 0.22;
   pointer-events: none;
 }
 
@@ -92,7 +96,7 @@ body {
   padding: 18px 0;
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
-  background: rgba(6, 8, 15, 0.6);
+  background: rgba(250, 245, 238, 0.75);
   border-bottom: 1px solid var(--card-border);
 }
 
@@ -139,13 +143,13 @@ body {
 
 .btn-primary {
   background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-  color: #0a0e1a;
+  color: #fff8f0;
   box-shadow: var(--shadow-glow);
 }
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 14px 70px -10px rgba(124, 156, 255, 0.5);
+  box-shadow: 0 14px 60px -10px rgba(232, 128, 75, 0.55);
 }
 
 .btn-ghost {
@@ -195,7 +199,7 @@ body {
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-3) 60%, var(--accent-2) 100%);
+  background: linear-gradient(135deg, var(--accent-1) 0%, #d96a35 55%, var(--accent-3) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -725,4 +729,17 @@ details p {
   html {
     scroll-behavior: auto;
   }
+}
+
+
+/* Brand v2: monster-hero */
+.hero-monster {
+  display: block;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto 18px;
+  filter: drop-shadow(0 18px 30px rgba(58, 46, 36, 0.25));
+}
+@media (max-width: 640px) {
+  .hero-monster { width: 150px; height: 150px; }
 }
