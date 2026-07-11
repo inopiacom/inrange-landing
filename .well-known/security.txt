@@ -1,0 +1,5 @@
+Contact: mailto:security@getinrange.ai
+Expires: 2027-07-11T00:00:00.000Z
+Preferred-Languages: en, sv
+Canonical: https://getinrange.ai/.well-known/security.txt
+Policy: https://getinrange.ai/security
