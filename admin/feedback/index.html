@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>InRange · Feedback</title>
+<style>
+  :root {
+    --bg: #0f1512; --card: #18211d; --line: #26332c; --ink: #eef3f0;
+    --muted: #8ba396; --mint: #4fd1a5; --cream: #f0e6c8; --red: #e5544b;
+    --amber: #e0a83a; --blue: #5aa9e6;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  header { display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+    border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); z-index: 5; }
+  header h1 { font-size: 17px; margin: 0; font-weight: 700; }
+  .grow { flex: 1; }
+  .pill { background: var(--card); border: 1px solid var(--line); color: var(--muted);
+    border-radius: 999px; padding: 5px 12px; font-size: 13px; cursor: pointer; user-select: none; }
+  .pill.active { color: var(--bg); background: var(--mint); border-color: var(--mint); font-weight: 600; }
+  .newpill { background: var(--amber); color: var(--bg); font-weight: 700; display: none; }
+  main { padding: 14px 18px 60px; max-width: 1100px; margin: 0 auto; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+  select, input[type=search], input[type=text], textarea {
+    background: var(--card); border: 1px solid var(--line); color: var(--ink);
+    border-radius: 8px; padding: 7px 10px; font-size: 14px; }
+  input[type=search] { min-width: 180px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em;
+    cursor: pointer; white-space: nowrap; }
+  tr.row { cursor: pointer; }
+  tr.row:hover td { background: #1c2621; }
+  .kind { font-size: 18px; }
+  .status { font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); white-space: nowrap; }
+  .s-open { color: var(--blue); border-color: var(--blue); }
+  .s-refined { color: var(--cream); border-color: var(--cream); }
+  .s-approved { color: var(--mint); border-color: var(--mint); }
+  .s-rejected { color: var(--red); border-color: var(--red); }
+  .s-implemented { color: var(--muted); }
+  .detail td { background: #131a16; }
+  .detail h4 { margin: 10px 0 4px; color: var(--muted); font-size: 12px; text-transform: uppercase; }
+  .detail pre { white-space: pre-wrap; word-break: break-word; margin: 0; font-family: inherit; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  button.act { border: 0; border-radius: 8px; padding: 8px 14px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .b-approve { background: var(--mint); color: var(--bg); }
+  .b-reject { background: var(--red); color: #fff; }
+  .b-impl { background: var(--blue); color: var(--bg); }
+  .muted { color: var(--muted); }
+  .empty { text-align: center; color: var(--muted); padding: 60px 20px; }
+  dialog { background: var(--card); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 12px; padding: 18px; max-width: 420px; width: 90%; }
+  dialog textarea, dialog input { width: 100%; margin: 8px 0; }
+  dialog::backdrop { background: rgba(0,0,0,.6); }
+  @media (max-width: 640px) {
+    th.hide-sm, td.hide-sm { display: none; }
+    main { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>📋 Feedback</h1>
+  <span id="count" class="muted"></span>
+  <span id="newpill" class="pill newpill"></span>
+  <div class="grow"></div>
+  <span class="pill" onclick="load()">↻ Uppdatera</span>
+  <span class="pill" onclick="logout()">Logga ut</span>
+</header>
+<main>
+  <div class="filters">
+    <span class="pill statusp active" data-status="">Alla</span>
+    <span class="pill statusp" data-status="open">Open</span>
+    <span class="pill statusp" data-status="refined">Refined</span>
+    <span class="pill statusp" data-status="approved">Approved</span>
+    <span class="pill statusp" data-status="rejected">Rejected</span>
+    <span class="pill statusp" data-status="implemented">Implemented</span>
+    <span style="width:8px"></span>
+    <span class="pill kindp active" data-kind="">Alla</span>
+    <span class="pill kindp" data-kind="bug">🐞 Bug</span>
+    <span class="pill kindp" data-kind="feature">💡 Feature</span>
+    <select id="category" onchange="load()">
+      <option value="">Alla kategorier</option>
+    </select>
+    <input type="search" id="search" placeholder="Sök titel…" oninput="render()" />
+  </div>
+  <table>
+    <thead><tr>
+      <th data-sort="created_at">Skapad</th>
+      <th>Typ</th>
+      <th class="hide-sm">Läge</th>
+      <th class="hide-sm" data-sort="category">Kategori</th>
+      <th data-sort="title">Titel</th>
+      <th class="hide-sm">Användare</th>
+      <th data-sort="status">Status</th>
+    </tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <div id="empty" class="empty" style="display:none">Inga poster.</div>
+</main>
+
+<dialog id="rejectDlg">
+  <h3>Avvisa</h3>
+  <p class="muted">Ange en anledning (sparas i admin_notes).</p>
+  <textarea id="rejectReason" rows="3" placeholder="Anledning…"></textarea>
+  <div class="actions">
+    <button class="act b-reject" onclick="confirmReject()">Avvisa</button>
+    <button class="act" onclick="rejectDlg.close()">Avbryt</button>
+  </div>
+</dialog>
+<dialog id="implDlg">
+  <h3>Markera implementerad</h3>
+  <input type="text" id="implBuild" placeholder="Build-nummer, t.ex. 41" />
+  <div class="actions">
+    <button class="act b-impl" onclick="confirmImpl()">Spara</button>
+    <button class="act" onclick="implDlg.close()">Avbryt</button>
+  </div>
+</dialog>
+
+<script>
+const API = "https://inrange-api.fly.dev/internal/admin/feedback";
+const CATS = ["onboarding","watch","chart","coach","notif","channels","settings","pause","cheer","tier","other"];
+let token = sessionStorage.getItem("inrange_admin_token") || "";
+let items = [], sortKey = "created_at", sortDir = -1, lastIds = new Set(), firstLoad = true;
+let pendingId = null;
+
+const $ = id => document.getElementById(id);
+const KIND_ICON = { bug: "🐞", feature: "💡" };
+
+function ensureToken() {
+  if (!token) {
+    token = prompt("Admin-lösenord:") || "";
+    if (token) sessionStorage.setItem("inrange_admin_token", token);
+  }
+  return token;
+}
+function logout() { sessionStorage.removeItem("inrange_admin_token"); token = ""; location.reload(); }
+
+function fillCats() {
+  const sel = $("category");
+  CATS.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; sel.appendChild(o); });
+}
+
+function activeFilter(cls, attr) {
+  const el = document.querySelector("." + cls + ".active");
+  return el ? el.dataset[attr] : "";
+}
+
+async function api(path, method = "GET", body) {
+  const res = await fetch(API + path, {
+    method,
+    headers: { "X-Admin-Token": ensureToken(), "Content-Type": "application/json" },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (res.status === 401) { logout(); throw new Error("unauthorized"); }
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  return res.status === 204 ? {} : res.json();
+}
+
+async function load() {
+  try {
+    const data = await api("/list", "POST", {
+      status: activeFilter("statusp", "status") || null,
+      kind: activeFilter("kindp", "kind") || null,
+      category: $("category").value || null,
+      limit: 200,
+    });
+    const ids = new Set(data.items.map(i => i.id));
+    if (!firstLoad) {
+      const fresh = data.items.filter(i => !lastIds.has(i.id)).length;
+      if (fresh > 0) { $("newpill").style.display = "inline-block"; $("newpill").textContent = "Nya: " + fresh; }
+    }
+    lastIds = ids; firstLoad = false;
+    items = data.items;
+    render();
+  } catch (e) { console.error(e); }
+}
+
+function render() {
+  const q = $("search").value.trim().toLowerCase();
+  let rows = items.slice();
+  if (q) rows = rows.filter(i => (i.title || "").toLowerCase().includes(q));
+  rows.sort((a, b) => {
+    const x = (a[sortKey] || ""), y = (b[sortKey] || "");
+    return (x < y ? -1 : x > y ? 1 : 0) * sortDir;
+  });
+  const tb = $("rows"); tb.innerHTML = "";
+  rows.forEach(i => tb.appendChild(rowEl(i)));
+  $("empty").style.display = rows.length ? "none" : "block";
+  $("count").textContent = rows.length + " poster";
+}
+
+function maskUser(uid) {
+  if (!uid) return "—";
+  const tail = uid.slice(-6);
+  return uid.split(":")[0] + "…" + tail;
+}
+function ago(iso) {
+  if (!iso) return "";
+  const m = Math.round((Date.now() - new Date(iso)) / 60000);
+  if (m < 60) return m + "m";
+  if (m < 1440) return Math.round(m / 60) + "h";
+  return Math.round(m / 1440) + "d";
+}
+
+function rowEl(i) {
+  const tr = document.createElement("tr");
+  tr.className = "row";
+  tr.innerHTML = `
+    <td title="${i.created_at || ""}">${ago(i.created_at)}</td>
+    <td class="kind">${KIND_ICON[i.kind] || "•"}</td>
+    <td class="hide-sm">${i.mode || ""}</td>
+    <td class="hide-sm">${i.category || ""}</td>
+    <td>${escapeHtml(i.title || "")}</td>
+    <td class="hide-sm muted">${maskUser(i.user_id)}</td>
+    <td><span class="status s-${i.status}">${i.status}</span></td>`;
+  tr.onclick = () => toggleDetail(tr, i);
+  return tr;
+}
+
+function toggleDetail(tr, i) {
+  if (tr.nextSibling && tr.nextSibling.classList && tr.nextSibling.classList.contains("detail")) {
+    tr.nextSibling.remove(); return;
+  }
+  const d = document.createElement("tr");
+  d.className = "detail";
+  const ctx = i.chat_context ? tryPretty(i.chat_context) : "—";
+  d.innerHTML = `<td colspan="7">
+    <h4>Beskrivning</h4><pre>${escapeHtml(i.description || "—")}</pre>
+    ${i.implementation_proposal ? `<h4>Förslag</h4><pre>${escapeHtml(i.implementation_proposal)}</pre>` : ""}
+    ${i.reproduction_steps ? `<h4>Reproduktion</h4><pre>${escapeHtml(i.reproduction_steps)}</pre>` : ""}
+    ${i.admin_notes ? `<h4>Admin-anteckning</h4><pre>${escapeHtml(i.admin_notes)}</pre>` : ""}
+    <h4>Chat-kontext</h4><pre>${escapeHtml(ctx)}</pre>
+    <div class="actions">
+      <button class="act b-approve" onclick="event.stopPropagation();approve('${i.id}')">Godkänn</button>
+      <button class="act b-reject" onclick="event.stopPropagation();openReject('${i.id}')">Avvisa</button>
+      <button class="act b-impl" onclick="event.stopPropagation();openImpl('${i.id}')">Implementerad</button>
+    </div></td>`;
+  tr.after(d);
+}
+
+function tryPretty(s) {
+  try { return JSON.parse(s).map(t => `${t.role}: ${t.content}`).join("\n"); }
+  catch { return s; }
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+
+async function approve(id) { await api("/" + id + "/approve", "POST"); await load(); }
+function openReject(id) { pendingId = id; $("rejectReason").value = ""; $("rejectDlg").showModal(); }
+async function confirmReject() {
+  const reason = $("rejectReason").value.trim();
+  if (!reason) return;
+  await api("/" + pendingId + "/reject", "POST", { admin_notes: reason });
+  $("rejectDlg").close(); await load();
+}
+function openImpl(id) { pendingId = id; $("implBuild").value = ""; $("implDlg").showModal(); }
+async function confirmImpl() {
+  const b = $("implBuild").value.trim();
+  if (!b) return;
+  await api("/" + pendingId + "/mark-implemented", "POST", { build: b });
+  $("implDlg").close(); await load();
+}
+
+document.querySelectorAll(".statusp").forEach(p => p.onclick = () => {
+  document.querySelectorAll(".statusp").forEach(x => x.classList.remove("active"));
+  p.classList.add("active"); load();
+});
+document.querySelectorAll(".kindp").forEach(p => p.onclick = () => {
+  document.querySelectorAll(".kindp").forEach(x => x.classList.remove("active"));
+  p.classList.add("active"); load();
+});
+document.querySelectorAll("th[data-sort]").forEach(th => th.onclick = () => {
+  const k = th.dataset.sort;
+  if (sortKey === k) sortDir *= -1; else { sortKey = k; sortDir = -1; }
+  render();
+});
+
+fillCats();
+load();
+setInterval(load, 60000);
+</script>
+</body>
+</html>
