@@ -4,6 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex, nofollow" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="InRange Feedback" />
 <title>InRange · Feedback</title>
 <style>
   :root {
@@ -59,9 +61,35 @@
     th.hide-sm, td.hide-sm { display: none; }
     main { padding: 12px; }
   }
+  /* Login screen (Keychain-friendly HTML form) */
+  #login { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  #login form { width: 100%; max-width: 320px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; padding: 28px 24px; display: flex; flex-direction: column; gap: 14px; text-align: center; }
+  #login h2 { margin: 0 0 4px; font-size: 20px; }
+  #login p { margin: 0; color: var(--muted); font-size: 13px; }
+  #login input[type=password] { font-size: 16px; padding: 12px 14px; text-align: center; }
+  #login button { background: var(--mint); color: var(--bg); border: 0; border-radius: 10px;
+    padding: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
+  #login .err { color: var(--red); font-size: 13px; min-height: 16px; }
+  .shake { animation: shake .4s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
+  #app { display: none; }
 </style>
 </head>
 <body>
+<div id="login">
+  <form id="admin-login" method="POST" action="#" autocomplete="on">
+    <h2>📋 InRange Feedback</h2>
+    <p>Admin — lås upp för att se kön.</p>
+    <input type="text" name="username" value="inrange-admin" autocomplete="username"
+      hidden readonly aria-hidden="true" />
+    <input id="pw" type="password" name="password" autocomplete="current-password"
+      placeholder="Admin-token" required autofocus />
+    <div id="loginErr" class="err"></div>
+    <button type="submit">Lås upp</button>
+  </form>
+</div>
+<div id="app">
 <header>
   <h1>📋 Feedback</h1>
   <span id="count" class="muted"></span>
@@ -119,6 +147,7 @@
     <button class="act" onclick="implDlg.close()">Avbryt</button>
   </div>
 </dialog>
+</div><!-- /#app -->
 
 <script>
 const API = "https://inrange-api.fly.dev/internal/admin/feedback";
@@ -130,14 +159,46 @@ let pendingId = null;
 const $ = id => document.getElementById(id);
 const KIND_ICON = { bug: "🐞", feature: "💡" };
 
-function ensureToken() {
-  if (!token) {
-    token = prompt("Admin-lösenord:") || "";
-    if (token) sessionStorage.setItem("inrange_admin_token", token);
-  }
-  return token;
+function showApp() { $("login").style.display = "none"; $("app").style.display = "block"; }
+function showLogin() {
+  $("app").style.display = "none";
+  $("login").style.display = "flex";
+  const pw = $("pw"); pw.value = ""; setTimeout(() => pw.focus(), 50);
 }
-function logout() { sessionStorage.removeItem("inrange_admin_token"); token = ""; location.reload(); }
+function logout() { sessionStorage.removeItem("inrange_admin_token"); token = ""; showLogin(); }
+
+// HTML-form-login (Keychain-autofyll). Validerar token mot backend först.
+async function tryLogin(candidate) {
+  const res = await fetch(API + "/list", {
+    method: "POST",
+    headers: { "X-Admin-Token": candidate, "Content-Type": "application/json" },
+    body: JSON.stringify({ limit: 1 }),
+  });
+  return res.ok;
+}
+$("admin-login").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const candidate = $("pw").value.trim();
+  const err = $("loginErr");
+  err.textContent = "";
+  if (!candidate) return;
+  try {
+    if (await tryLogin(candidate)) {
+      token = candidate;
+      sessionStorage.setItem("inrange_admin_token", token);
+      showApp();
+      // Låt Safari erbjuda "Spara lösenord" — formuläret finns kvar i DOM:en.
+      startPanel();
+    } else {
+      err.textContent = "Fel token — försök igen.";
+      const form = $("admin-login");
+      form.classList.remove("shake"); void form.offsetWidth; form.classList.add("shake");
+      $("pw").value = ""; $("pw").focus();
+    }
+  } catch {
+    err.textContent = "Nätverksfel — försök igen.";
+  }
+});
 
 function fillCats() {
   const sel = $("category");
@@ -152,7 +213,7 @@ function activeFilter(cls, attr) {
 async function api(path, method = "GET", body) {
   const res = await fetch(API + path, {
     method,
-    headers: { "X-Admin-Token": ensureToken(), "Content-Type": "application/json" },
+    headers: { "X-Admin-Token": token, "Content-Type": "application/json" },
     body: body ? JSON.stringify(body) : undefined,
   });
   if (res.status === 401) { logout(); throw new Error("unauthorized"); }
@@ -280,9 +341,17 @@ document.querySelectorAll("th[data-sort]").forEach(th => th.onclick = () => {
   render();
 });
 
+let panelStarted = false;
+function startPanel() {
+  if (panelStarted) { load(); return; }
+  panelStarted = true;
+  load();
+  setInterval(() => { if (token) load(); }, 60000);
+}
+
 fillCats();
-load();
-setInterval(load, 60000);
+// Redan inloggad i den här fliken? → visa panelen direkt; annars login-formuläret.
+if (token) { showApp(); startPanel(); } else { showLogin(); }
 </script>
 </body>
 </html>
