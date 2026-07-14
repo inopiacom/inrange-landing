@@ -24,6 +24,12 @@
     border-radius: 999px; padding: 5px 12px; font-size: 13px; cursor: pointer; user-select: none; }
   .pill.active { color: var(--bg); background: var(--mint); border-color: var(--mint); font-weight: 600; }
   .newpill { background: var(--amber); color: var(--bg); font-weight: 700; display: none; }
+  .navp { font-weight: 600; }
+  .navp.active { color: var(--bg); background: var(--cream); border-color: var(--cream); }
+  .grp-sim { font-size: 12px; color: var(--mint); font-weight: 700; }
+  .grp-note { color: var(--cream); }
+  .charcount { font-size: 12px; color: var(--muted); text-align: right; }
+  .warn { color: var(--amber); font-size: 13px; }
   main { padding: 14px 18px 60px; max-width: 1100px; margin: 0 auto; }
   .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
   select, input[type=search], input[type=text], textarea {
@@ -92,13 +98,15 @@
 <div id="app">
 <header>
   <h1>📋 Feedback</h1>
+  <span class="pill navp active" data-view="feedback" onclick="switchView('feedback')">Kö</span>
+  <span class="pill navp" data-view="groups" onclick="switchView('groups')">🔁 Grupper</span>
   <span id="count" class="muted"></span>
   <span id="newpill" class="pill newpill"></span>
   <div class="grow"></div>
-  <span class="pill" onclick="load()">↻ Uppdatera</span>
+  <span class="pill" onclick="refreshCurrent()">↻ Uppdatera</span>
   <span class="pill" onclick="logout()">Logga ut</span>
 </header>
-<main>
+<main id="feedbackView">
   <div class="filters">
     <span class="pill statusp active" data-status="">Alla</span>
     <span class="pill statusp" data-status="open">Open</span>
@@ -130,6 +138,26 @@
   <div id="empty" class="empty" style="display:none">Inga poster.</div>
 </main>
 
+<main id="groupsView" style="display:none">
+  <div class="filters">
+    <button class="act b-approve" onclick="openNewGroup()">+ Ny grupp</button>
+    <span class="muted" id="groupCount"></span>
+    <span class="grow" style="flex:1"></span>
+    <span class="muted" style="font-size:13px">Lösta grupper notifierar alla rapportörer 09:00 lokal tid.</span>
+  </div>
+  <table>
+    <thead><tr>
+      <th>Titel</th>
+      <th>Medlemmar</th>
+      <th>Status</th>
+      <th class="hide-sm">Build</th>
+      <th></th>
+    </tr></thead>
+    <tbody id="groupRows"></tbody>
+  </table>
+  <div id="groupEmpty" class="empty" style="display:none">Inga grupper ännu. Skapa en grupp och tilldela feedback från kön.</div>
+</main>
+
 <dialog id="rejectDlg">
   <h3>Avvisa</h3>
   <p class="muted">Ange en anledning (sparas i admin_notes).</p>
@@ -145,6 +173,40 @@
   <div class="actions">
     <button class="act b-impl" onclick="confirmImpl()">Spara</button>
     <button class="act" onclick="implDlg.close()">Avbryt</button>
+  </div>
+</dialog>
+
+<dialog id="newGroupDlg">
+  <h3>Ny grupp</h3>
+  <p class="muted">Samla liknande feedback under en titel. Tilldela poster från kön.</p>
+  <input type="text" id="newGroupTitle" maxlength="120" placeholder="Titel, t.ex. Libre snabbknapp saknas" />
+  <div class="actions">
+    <button class="act b-approve" onclick="confirmNewGroup()">Skapa</button>
+    <button class="act" onclick="newGroupDlg.close()">Avbryt</button>
+  </div>
+</dialog>
+
+<dialog id="resolveDlg">
+  <h3>Lös grupp 💛</h3>
+  <p class="muted" id="resolveGroupTitle"></p>
+  <textarea id="resolveNote" rows="3" maxlength="240" placeholder="Vad var fixat? Kort och personligt."
+    oninput="updateResolveCount()"></textarea>
+  <div class="charcount"><span id="resolveCount">0</span>/240</div>
+  <input type="text" id="resolveBuild" maxlength="32" placeholder="Löst i build (valfritt), t.ex. Build 63" />
+  <p class="warn" id="resolveWarn"></p>
+  <div class="actions">
+    <button class="act b-approve" onclick="confirmResolve()">Lös + notifiera</button>
+    <button class="act" onclick="resolveDlg.close()">Avbryt</button>
+  </div>
+</dialog>
+
+<dialog id="assignDlg">
+  <h3>Tilldela grupp</h3>
+  <p class="muted" id="assignFbTitle"></p>
+  <div id="assignSuggest"></div>
+  <div id="assignList" style="max-height:240px;overflow:auto;margin:8px 0"></div>
+  <div class="actions">
+    <button class="act" onclick="assignDlg.close()">Stäng</button>
   </div>
 </dialog>
 </div><!-- /#app -->
@@ -289,16 +351,22 @@ function toggleDetail(tr, i) {
   const d = document.createElement("tr");
   d.className = "detail";
   const ctx = i.chat_context ? tryPretty(i.chat_context) : "—";
+  const grpName = i.feedback_group_id ? (groupName(i.feedback_group_id) || i.feedback_group_id.slice(0, 8)) : null;
+  const grpLine = grpName
+    ? `<h4>Grupp</h4><pre>🔁 ${escapeHtml(grpName)}${i.resolution_status && i.resolution_status !== "open" ? " · " + i.resolution_status : ""}</pre>`
+    : "";
   d.innerHTML = `<td colspan="7">
     <h4>Beskrivning</h4><pre>${escapeHtml(i.description || "—")}</pre>
     ${i.implementation_proposal ? `<h4>Förslag</h4><pre>${escapeHtml(i.implementation_proposal)}</pre>` : ""}
     ${i.reproduction_steps ? `<h4>Reproduktion</h4><pre>${escapeHtml(i.reproduction_steps)}</pre>` : ""}
     ${i.admin_notes ? `<h4>Admin-anteckning</h4><pre>${escapeHtml(i.admin_notes)}</pre>` : ""}
+    ${grpLine}
     <h4>Chat-kontext</h4><pre>${escapeHtml(ctx)}</pre>
     <div class="actions">
       <button class="act b-approve" onclick="event.stopPropagation();approve('${i.id}')">Godkänn</button>
       <button class="act b-reject" onclick="event.stopPropagation();openReject('${i.id}')">Avvisa</button>
       <button class="act b-impl" onclick="event.stopPropagation();openImpl('${i.id}')">Implementerad</button>
+      <button class="act" style="background:var(--cream);color:var(--bg)" onclick="event.stopPropagation();openAssign('${i.id}','${escapeAttr(i.title || "")}')">🔁 Tilldela grupp</button>
     </div></td>`;
   tr.after(d);
 }
@@ -340,6 +408,145 @@ document.querySelectorAll("th[data-sort]").forEach(th => th.onclick = () => {
   if (sortKey === k) sortDir *= -1; else { sortKey = k; sortDir = -1; }
   render();
 });
+
+// ── Build 63: resolution groups ─────────────────────────────────────────────
+let groups = [], currentView = "feedback", pendingGroupId = null, pendingFbId = null;
+
+function groupName(id) { const g = groups.find(x => x.id === id); return g ? g.title : null; }
+function escapeAttr(s) { return escapeHtml(s).replace(/'/g, "&#39;"); }
+
+function switchView(v) {
+  currentView = v;
+  document.querySelectorAll(".navp").forEach(p => p.classList.toggle("active", p.dataset.view === v));
+  $("feedbackView").style.display = v === "feedback" ? "block" : "none";
+  $("groupsView").style.display = v === "groups" ? "block" : "none";
+  $("newpill").style.display = "none";
+  if (v === "groups") loadGroups();
+}
+function refreshCurrent() { currentView === "groups" ? loadGroups() : load(); }
+
+async function loadGroups() {
+  try {
+    const data = await api("/groups", "GET");
+    groups = data.groups || [];
+    renderGroups();
+  } catch (e) { console.error(e); }
+}
+
+const GS = { open: "s-open", in_review: "s-refined", resolved: "s-approved", wont_fix: "s-rejected" };
+function renderGroups() {
+  const tb = $("groupRows"); tb.innerHTML = "";
+  groups.forEach(g => tb.appendChild(groupRowEl(g)));
+  $("groupEmpty").style.display = groups.length ? "none" : "block";
+  $("groupCount").textContent = groups.length + " grupper";
+}
+
+function groupRowEl(g) {
+  const tr = document.createElement("tr");
+  tr.className = "row";
+  const resolved = g.resolution_status === "resolved";
+  tr.innerHTML = `
+    <td>${escapeHtml(g.title)}</td>
+    <td>${g.member_count}</td>
+    <td><span class="status ${GS[g.resolution_status] || ""}">${g.resolution_status}</span></td>
+    <td class="hide-sm muted">${escapeHtml(g.resolved_in_build || "—")}</td>
+    <td style="text-align:right">${resolved ? "" : `<button class="act b-approve" onclick="event.stopPropagation();openResolve('${g.id}')">Lös</button>`}</td>`;
+  tr.onclick = () => toggleGroupDetail(tr, g);
+  return tr;
+}
+
+async function toggleGroupDetail(tr, g) {
+  if (tr.nextSibling && tr.nextSibling.classList && tr.nextSibling.classList.contains("detail")) {
+    tr.nextSibling.remove(); return;
+  }
+  const d = document.createElement("tr");
+  d.className = "detail";
+  d.innerHTML = `<td colspan="5"><span class="muted">Laddar…</span></td>`;
+  tr.after(d);
+  try {
+    const detail = await api("/groups/" + g.id, "GET");
+    const members = (detail.members || []).map(m =>
+      `<li>${KIND_ICON[m.kind] || "•"} ${escapeHtml(m.title)} <span class="muted">· ${maskUser(m.user_id)} · ${ago(m.created_at)}</span></li>`
+    ).join("");
+    const noteBlock = detail.resolution_note
+      ? `<h4>Löst-notis</h4><pre class="grp-note">${escapeHtml(detail.resolution_note)}</pre>`
+      : "";
+    d.innerHTML = `<td colspan="5">
+      ${noteBlock}
+      <h4>${detail.members.length} poster · ${detail.users.length} unika användare</h4>
+      <ul style="margin:4px 0 0;padding-left:18px">${members || "<li class='muted'>Inga poster tilldelade ännu.</li>"}</ul>
+      <div class="actions">
+        ${g.resolution_status === "resolved"
+          ? `<span class="muted">Löst — ${detail.users.length} notiser köade/levererade.</span>`
+          : `<button class="act b-approve" onclick="event.stopPropagation();openResolve('${g.id}')">Lös + notifiera ${detail.users.length} användare 💛</button>`}
+      </div></td>`;
+  } catch (e) { d.innerHTML = `<td colspan="5"><span class="warn">Kunde inte ladda gruppen.</span></td>`; }
+}
+
+// New group
+function openNewGroup() { $("newGroupTitle").value = ""; $("newGroupDlg").showModal(); }
+async function confirmNewGroup() {
+  const title = $("newGroupTitle").value.trim();
+  if (!title) return;
+  await api("/groups", "POST", { title });
+  $("newGroupDlg").close();
+  await loadGroups();
+}
+
+// Resolve
+function openResolve(id) {
+  pendingGroupId = id;
+  const g = groups.find(x => x.id === id);
+  $("resolveGroupTitle").textContent = g ? g.title : "";
+  $("resolveNote").value = ""; $("resolveBuild").value = "";
+  $("resolveWarn").textContent = g ? `Notifierar rapportörerna i gruppen vid nästa 09:00 lokal tid.` : "";
+  updateResolveCount();
+  $("resolveDlg").showModal();
+}
+function updateResolveCount() { $("resolveCount").textContent = $("resolveNote").value.length; }
+async function confirmResolve() {
+  const note = $("resolveNote").value.trim();
+  if (!note) return;
+  const build = $("resolveBuild").value.trim();
+  const res = await api("/groups/" + pendingGroupId + "/resolve", "POST", {
+    resolution_note: note,
+    resolved_in_build: build || null,
+  });
+  $("resolveDlg").close();
+  await loadGroups();
+  alert(`Löst 💛 — ${res.queued_notifications} notis(er) köade.`);
+}
+
+// Assign a feedback to a group (from the queue detail)
+async function openAssign(fbId, title) {
+  pendingFbId = fbId;
+  $("assignFbTitle").textContent = title;
+  $("assignSuggest").innerHTML = `<span class="muted">Hämtar förslag…</span>`;
+  $("assignList").innerHTML = "";
+  $("assignDlg").showModal();
+  // Suggestions (embedding-based) + full group list in parallel.
+  const [sug, list] = await Promise.all([
+    api("/" + fbId + "/group-suggestions", "POST").catch(() => ({ suggestions: [] })),
+    api("/groups", "GET").catch(() => ({ groups: [] })),
+  ]);
+  groups = list.groups || groups;
+  const suggIds = new Set((sug.suggestions || []).map(s => s.group_id));
+  const sugHtml = (sug.suggestions || []).length
+    ? `<h4>Förslag (likhet)</h4>` + sug.suggestions.map(s =>
+        `<div style="padding:6px 0"><button class="act b-approve" onclick="doAssign('${s.group_id}')">${escapeHtml(s.title)}</button> <span class="grp-sim">${Math.round(s.similarity * 100)}%</span></div>`
+      ).join("")
+    : `<p class="muted">Inga embedding-förslag (posten saknar embedding eller inga grupper matchar).</p>`;
+  $("assignSuggest").innerHTML = sugHtml;
+  const others = groups.filter(g => !suggIds.has(g.id));
+  $("assignList").innerHTML = `<h4>Alla grupper</h4>` + (others.length
+    ? others.map(g => `<div style="padding:6px 0"><button class="act" style="background:var(--card);border:1px solid var(--line);color:var(--ink)" onclick="doAssign('${g.id}')">${escapeHtml(g.title)}</button> <span class="muted">${g.member_count} poster</span></div>`).join("")
+    : `<p class="muted">Inga andra grupper. Skapa en i 🔁 Grupper-vyn.</p>`);
+}
+async function doAssign(groupId) {
+  await api("/" + pendingFbId + "/assign", "POST", { group_id: groupId });
+  $("assignDlg").close();
+  await load();
+}
 
 let panelStarted = false;
 function startPanel() {
