@@ -100,6 +100,7 @@
   <h1>📋 Feedback</h1>
   <span class="pill navp active" data-view="feedback" onclick="switchView('feedback')">Kö</span>
   <span class="pill navp" data-view="groups" onclick="switchView('groups')">🔁 Grupper</span>
+  <span class="pill navp" data-view="suggested" onclick="switchView('suggested')">🔍 Förslag <span id="sugBadge" class="grp-sim"></span></span>
   <span id="count" class="muted"></span>
   <span id="newpill" class="pill newpill"></span>
   <div class="grow"></div>
@@ -158,6 +159,17 @@
   <div id="groupEmpty" class="empty" style="display:none">Inga grupper ännu. Skapa en grupp och tilldela feedback från kön.</div>
 </main>
 
+<main id="suggestedView" style="display:none">
+  <div class="filters">
+    <button class="act b-approve" onclick="confirmHigh()">✓ Bekräfta alla &gt;0.9</button>
+    <span class="muted" id="sugCount"></span>
+    <span class="grow" style="flex:1"></span>
+    <span class="muted" style="font-size:13px">Auto-matchade av post-ship-svepet. Bekräfta → coach-notis till rapportörerna.</span>
+  </div>
+  <div id="sugList"></div>
+  <div id="sugEmpty" class="empty" style="display:none">Inga väntande förslag. Kör ett post-ship-svep för att fylla listan.</div>
+</main>
+
 <dialog id="rejectDlg">
   <h3>Avvisa</h3>
   <p class="muted">Ange en anledning (sparas i admin_notes).</p>
@@ -207,6 +219,28 @@
   <div id="assignList" style="max-height:240px;overflow:auto;margin:8px 0"></div>
   <div class="actions">
     <button class="act" onclick="assignDlg.close()">Stäng</button>
+  </div>
+</dialog>
+
+<dialog id="editNoteDlg">
+  <h3>Redigera lösnings-notis</h3>
+  <p class="muted">Denna text går ut till rapportörerna när du bekräftar.</p>
+  <textarea id="editNoteText" rows="3" maxlength="240" placeholder="Vad var fixat? Kort och personligt."
+    oninput="updateEditCount()"></textarea>
+  <div class="charcount"><span id="editNoteCount">0</span>/240</div>
+  <div class="actions">
+    <button class="act b-approve" onclick="confirmEditNote()">Bekräfta + notifiera</button>
+    <button class="act" onclick="editNoteDlg.close()">Avbryt</button>
+  </div>
+</dialog>
+
+<dialog id="sugRejectDlg">
+  <h3>Avvisa förslag</h3>
+  <p class="muted">Gruppen går tillbaka till 'open'. Ange varför (sparas).</p>
+  <textarea id="sugRejectReason" rows="3" maxlength="240" placeholder="Varför stämmer inte matchningen?"></textarea>
+  <div class="actions">
+    <button class="act b-reject" onclick="confirmSugReject()">Avvisa</button>
+    <button class="act" onclick="sugRejectDlg.close()">Avbryt</button>
   </div>
 </dialog>
 </div><!-- /#app -->
@@ -420,10 +454,16 @@ function switchView(v) {
   document.querySelectorAll(".navp").forEach(p => p.classList.toggle("active", p.dataset.view === v));
   $("feedbackView").style.display = v === "feedback" ? "block" : "none";
   $("groupsView").style.display = v === "groups" ? "block" : "none";
+  $("suggestedView").style.display = v === "suggested" ? "block" : "none";
   $("newpill").style.display = "none";
   if (v === "groups") loadGroups();
+  if (v === "suggested") loadSuggested();
 }
-function refreshCurrent() { currentView === "groups" ? loadGroups() : load(); }
+function refreshCurrent() {
+  if (currentView === "groups") loadGroups();
+  else if (currentView === "suggested") loadSuggested();
+  else load();
+}
 
 async function loadGroups() {
   try {
@@ -548,12 +588,104 @@ async function doAssign(groupId) {
   await load();
 }
 
+// ── Build 65: auto-sync suggestions ─────────────────────────────────────────
+let suggestions = [], pendingSugId = null;
+
+async function loadSuggested() {
+  try {
+    const data = await api("/suggested", "GET");
+    suggestions = data.suggestions || [];
+    renderSuggested();
+  } catch (e) { console.error(e); }
+}
+
+function renderSuggested() {
+  const list = $("sugList"); list.innerHTML = "";
+  suggestions.forEach(s => list.appendChild(sugCardEl(s)));
+  $("sugEmpty").style.display = suggestions.length ? "none" : "block";
+  $("sugCount").textContent = suggestions.length + " förslag";
+  const badge = $("sugBadge");
+  badge.textContent = suggestions.length ? String(suggestions.length) : "";
+}
+
+function confClass(c) { return c >= 0.9 ? "s-approved" : c >= 0.75 ? "s-refined" : "s-open"; }
+
+function sugCardEl(s) {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.style.cssText = "background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px";
+  const conf = s.confidence != null ? Math.round(s.confidence * 100) + "%" : "—";
+  const fbItems = (s.feedback || []).map(f =>
+    `<li>${escapeHtml(f.title)} <span class="muted">— ${escapeHtml((f.description || "").slice(0, 120))}</span></li>`
+  ).join("");
+  card.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span class="status ${confClass(s.confidence || 0)}">${conf}</span>
+      <b>${escapeHtml(s.resolved_in_build || "?")}</b>
+      <span class="muted">· ${s.user_count} rapportör${s.user_count === 1 ? "" : "er"}</span>
+    </div>
+    <h4>Föreslagen lösnings-notis</h4>
+    <pre class="grp-note" id="note-${s.id}">${escapeHtml(s.suggested_note || "—")}</pre>
+    ${s.rationale ? `<h4>Motivering (intern)</h4><pre class="muted">${escapeHtml(s.rationale)}</pre>` : ""}
+    <h4>Feedback (${(s.feedback || []).length})</h4>
+    <ul style="margin:4px 0 0;padding-left:18px">${fbItems || "<li class='muted'>—</li>"}</ul>
+    <div class="actions">
+      <button class="act b-approve" onclick="confirmSuggestion('${s.id}')">✓ Bekräfta + notifiera</button>
+      <button class="act" style="background:var(--card);border:1px solid var(--line);color:var(--ink)" onclick="editNote('${s.id}')">Redigera notis</button>
+      <button class="act b-reject" onclick="openSugReject('${s.id}')">Avvisa</button>
+    </div>`;
+  return card;
+}
+
+async function confirmSuggestion(id, note) {
+  const body = note != null ? { resolution_note: note } : {};
+  const res = await api("/groups/" + id + "/confirm", "POST", body);
+  await loadSuggested();
+  alert(`Bekräftad 💛 — ${res.queued_notifications} notis(er) köade.`);
+}
+
+function editNote(id) {
+  const s = suggestions.find(x => x.id === id);
+  pendingSugId = id;
+  $("editNoteText").value = s ? (s.suggested_note || "") : "";
+  updateEditCount();
+  $("editNoteDlg").showModal();
+}
+function updateEditCount() { $("editNoteCount").textContent = $("editNoteText").value.length; }
+async function confirmEditNote() {
+  const note = $("editNoteText").value.trim();
+  if (!note) return;
+  $("editNoteDlg").close();
+  await confirmSuggestion(pendingSugId, note);
+}
+
+function openSugReject(id) { pendingSugId = id; $("sugRejectReason").value = ""; $("sugRejectDlg").showModal(); }
+async function confirmSugReject() {
+  const reason = $("sugRejectReason").value.trim();
+  if (!reason) return;
+  await api("/groups/" + pendingSugId + "/reject", "POST", { reason });
+  $("sugRejectDlg").close();
+  await loadSuggested();
+}
+
+async function confirmHigh() {
+  const high = suggestions.filter(s => (s.confidence || 0) > 0.9).length;
+  if (!high) { alert("Inga förslag över 0.9 att bekräfta."); return; }
+  if (!confirm(`Bekräfta ${high} förslag med konfidens > 0.9? Det skickar coach-notiser till alla rapportörer.`)) return;
+  const res = await api("/suggested/confirm-high", "POST");
+  await loadSuggested();
+  alert(`${res.confirmed} bekräftade — ${res.queued_notifications} notiser köade.`);
+}
+
 let panelStarted = false;
 function startPanel() {
   if (panelStarted) { load(); return; }
   panelStarted = true;
   load();
   setInterval(() => { if (token) load(); }, 60000);
+  // Build 65: Signal-notisen länkar till #suggested → öppna den vyn direkt.
+  if (location.hash === "#suggested") switchView("suggested");
+  else loadSuggested();  // fyll förslags-badgen även i kö-vyn
 }
 
 fillCats();
