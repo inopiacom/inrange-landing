@@ -104,6 +104,8 @@
   .warn { color: var(--amber); font-size: 13px; padding: 8px 10px;
     background: #1c2621; border-radius: 6px; margin-top: 8px; }
   .flag { color: var(--amber); font-size: 12px; margin-top: 6px; font-style: italic; }
+  .status { font-size: 11px; padding: 2px 8px; border-radius: 999px;
+    border: 1px solid var(--line); display: inline-block; }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   @media (max-width: 720px) {
     .grid-2 { grid-template-columns: 1fr; }
@@ -166,6 +168,11 @@
   <section id="secDrafts">
     <h2>2) Coach drafts <span class="sub">senaste 8 veckor</span></h2>
     <div id="draftsBody" class="empty">Laddar…</div>
+  </section>
+
+  <section id="secForensic">
+    <h2>2b) Coach draft forensics <span class="sub">varför fastnar pending?</span></h2>
+    <div id="forensicBody" class="empty">Laddar…</div>
   </section>
 
   <section id="secMeals">
@@ -259,6 +266,7 @@ async function loadAll() {
   await Promise.allSettled([
     loadFunnel(),
     loadDrafts(),
+    loadForensic(),
     loadMeals(),
     loadCTA(),
     loadRetention(),
@@ -266,32 +274,160 @@ async function loadAll() {
 }
 
 // ── 1) Onboarding funnel ──────────────────────────────────────────────────
+let funnelData = null, funnelShowRaw = false;
+
+function renderFunnelSteps(steps) {
+  const max = steps[0].count || 1;
+  return steps.map((s, i) => {
+    const width = Math.max(2, Math.round(100 * s.count / max));
+    const dropoff = i > 0 && s.dropoff_pct > 0
+      ? `<span class="dropoff">-${pct(s.dropoff_pct)}</span>` : "";
+    const conv = i > 0 ? `<span class="muted">→ ${pct(s.conversion_pct)}${dropoff}</span>` : "";
+    const flag = s.proxy ? `<div class="flag">⚠️ ${esc(s.proxy)}</div>` : "";
+    const note = s.cutoff_note ? `<div class="flag" style="color:var(--muted)">${esc(s.cutoff_note)}</div>` : "";
+    return `
+      <div class="funnel-row">
+        <div class="label">${esc(s.label)}${flag}${note}</div>
+        <div class="bar"><div style="width:${width}%"></div></div>
+        <div class="num">${nf(s.count)} ${conv}</div>
+      </div>`;
+  }).join("");
+}
+
+function renderFunnelBody() {
+  const d = funnelData;
+  const body = $("funnelBody");
+  if (!d) return;
+  const primary = funnelShowRaw ? d.raw_counts : d.eligible_counts;
+  const primaryLabel = funnelShowRaw ? "raw (alla users)" : "eligible (post-cutoff)";
+  const otherLabel = funnelShowRaw ? "eligible" : "raw";
+  const primaryCohort = funnelShowRaw ? d.raw_cohort_size : d.eligible_cohort_size;
+  const otherCohort = funnelShowRaw ? d.eligible_cohort_size : d.raw_cohort_size;
+  const rawWarn = funnelShowRaw
+    ? `<div class="warn">⚠️ Visar raw — pre-launch users (som aldrig fick chansen att fylla i fältet) räknas som drop-off. Använd eligible för verklig conversion.</div>`
+    : "";
+  if (primary[0].count === 0) {
+    body.innerHTML = `<div class="empty">Inga signups i fönstret.</div>`;
+    return;
+  }
+  body.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+      <div class="muted" style="font-size:12px">
+        Kohort: <b style="color:var(--ink)">${nf(primaryCohort)}</b> ${primaryLabel}
+        · <span class="muted">${otherLabel}: ${nf(otherCohort)}</span>
+      </div>
+      <span class="pill" onclick="toggleFunnelRaw()">
+        ${funnelShowRaw ? "Visa eligible" : "Visa raw"}
+      </span>
+    </div>
+    ${rawWarn}
+    ${renderFunnelSteps(primary)}
+  `;
+  body.classList.remove("empty");
+}
+
+function toggleFunnelRaw() {
+  funnelShowRaw = !funnelShowRaw;
+  renderFunnelBody();
+}
+
 async function loadFunnel() {
   const body = $("funnelBody");
   try {
     const d = await api(`/onboarding-funnel?days=${windowDays}`);
-    if (d.steps[0].count === 0) {
-      body.innerHTML = `<div class="empty">Inga signups i fönstret.</div>`;
-      return;
+    funnelData = d;
+    // v1 backward-compat shim: if server hasn't been redeployed, steps still exists.
+    if (!d.eligible_counts) {
+      funnelData = {
+        eligible_counts: d.steps,
+        raw_counts: d.steps,
+        eligible_cohort_size: d.steps[0]?.count || 0,
+        raw_cohort_size: d.steps[0]?.count || 0,
+      };
     }
-    const max = d.steps[0].count || 1;
-    const rows = d.steps.map((s, i) => {
-      const width = Math.max(2, Math.round(100 * s.count / max));
-      const dropoff = i > 0 && s.dropoff_pct > 0
-        ? `<span class="dropoff">-${pct(s.dropoff_pct)}</span>` : "";
-      const conv = i > 0 ? `<span class="muted">→ ${pct(s.conversion_pct)}${dropoff}</span>` : "";
-      const flag = s.proxy ? `<div class="flag">⚠️ ${esc(s.proxy)}</div>` : "";
-      return `
-        <div class="funnel-row">
-          <div class="label">${esc(s.label)}${flag}</div>
-          <div class="bar"><div style="width:${width}%"></div></div>
-          <div class="num">${nf(s.count)} ${conv}</div>
-        </div>`;
-    }).join("");
-    body.innerHTML = rows;
-    body.classList.remove("empty");
+    renderFunnelBody();
   } catch (e) {
     body.innerHTML = `<div class="empty">Kunde inte hämta funnel: ${esc(e.message)}</div>`;
+  }
+}
+
+// ── 2b) Coach draft forensics ─────────────────────────────────────────────
+async function loadForensic() {
+  const body = $("forensicBody");
+  try {
+    const d = await api(`/coach-drafts-forensic?status=pending&limit=100`);
+    const s = d.summary;
+    if (!d.drafts.length) {
+      body.innerHTML = `<div class="empty">Inga pending drafts att analysera. 🎉</div>`;
+      return;
+    }
+    const bucketCounters = `
+      <div class="counters">
+        <div class="counter">
+          <div class="k">Total pending</div>
+          <div class="v">${nf(s.total_pending)}</div>
+        </div>
+        <div class="counter">
+          <div class="k">Aktiv men ignorerar</div>
+          <div class="v">${nf(s.pending_push_success_user_active_but_ignoring)}
+            <span class="pct bad">${pct(s.total_pending ? 100*s.pending_push_success_user_active_but_ignoring/s.total_pending : 0)}</span>
+          </div>
+        </div>
+        <div class="counter">
+          <div class="k">Inaktiv (missat push)</div>
+          <div class="v">${nf(s.pending_push_success_but_inactive)}
+            <span class="pct warn">${pct(s.total_pending ? 100*s.pending_push_success_but_inactive/s.total_pending : 0)}</span>
+          </div>
+        </div>
+        <div class="counter">
+          <div class="k">Aldrig pushad</div>
+          <div class="v">${nf(s.pending_never_pushed)}</div>
+        </div>
+        <div class="counter">
+          <div class="k">Push failed</div>
+          <div class="v">${nf(s.pending_push_failed)}</div>
+        </div>
+      </div>`;
+
+    const rows = d.drafts.map(x => {
+      const ago = x.user_activity.days_since_last_active;
+      const agoStr = ago == null ? "aldrig" : ago < 1 ? Math.round(ago * 24) + "h" : ago.toFixed(1) + "d";
+      const bucketColor =
+        x.bucket === "active_but_ignoring" ? "var(--red)" :
+        x.bucket === "inactive" ? "var(--amber)" : "var(--muted)";
+      const bucketLabel =
+        x.bucket === "active_but_ignoring" ? "aktiv, ignorerar" :
+        x.bucket === "inactive" ? "inaktiv" : x.bucket;
+      const createdAgo = x.created_at ? Math.round((Date.now() - new Date(x.created_at)) / 3600000) + "h" : "?";
+      const ctxStr = x.trigger_context && typeof x.trigger_context === "object"
+        ? Object.entries(x.trigger_context).map(([k, v]) => `${k}=${v}`).join(", ")
+        : (x.trigger_context || "");
+      return `<tr>
+        <td>${esc(x.main_user_display)}</td>
+        <td class="muted">→ ${esc(x.follower_display)}</td>
+        <td>${esc(x.trigger_type)}${ctxStr ? ` <span class="muted">(${esc(ctxStr)})</span>` : ""}</td>
+        <td class="num">${createdAgo}</td>
+        <td class="num muted">${agoStr}</td>
+        <td><span class="status" style="color:${bucketColor};border-color:${bucketColor}">${bucketLabel}</span></td>
+      </tr>`;
+    }).join("");
+
+    const gapNote = (d.instrumentation_gaps || []).length
+      ? `<div class="warn">⚠️ Instrumentering saknas: ${esc(d.instrumentation_gaps[0])}</div>`
+      : "";
+
+    body.innerHTML = bucketCounters + `
+      <table>
+        <thead><tr>
+          <th>Main user</th><th>Follower</th><th>Trigger</th>
+          <th class="num">Created</th><th class="num">Last active</th><th>Bucket</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      ${gapNote}`;
+    body.classList.remove("empty");
+  } catch (e) {
+    body.innerHTML = `<div class="empty">Kunde inte hämta forensics: ${esc(e.message)}</div>`;
   }
 }
 
