@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="InRange Analytics" />
+<title>InRange · Analytics</title>
+<style>
+  :root {
+    --bg: #0f1512; --card: #18211d; --line: #26332c; --ink: #eef3f0;
+    --muted: #8ba396; --mint: #4fd1a5; --cream: #f0e6c8; --red: #e5544b;
+    --amber: #e0a83a; --blue: #5aa9e6; --purple: #b48ce6;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  header { display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+    border-bottom: 1px solid var(--line); position: sticky; top: 0;
+    background: var(--bg); z-index: 5; flex-wrap: wrap; }
+  header h1 { font-size: 17px; margin: 0; font-weight: 700; }
+  .grow { flex: 1; }
+  .pill { background: var(--card); border: 1px solid var(--line); color: var(--muted);
+    border-radius: 999px; padding: 5px 12px; font-size: 13px; cursor: pointer; user-select: none; }
+  .pill.active { color: var(--bg); background: var(--mint); border-color: var(--mint); font-weight: 600; }
+  main { padding: 14px 18px 60px; max-width: 1100px; margin: 0 auto; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 18px; }
+  section h2 { font-size: 15px; margin: 0 0 12px; color: var(--cream); font-weight: 700;
+    letter-spacing: .02em; text-transform: uppercase; }
+  section h2 .sub { font-size: 12px; color: var(--muted); font-weight: 400;
+    text-transform: none; letter-spacing: 0; margin-left: 8px; }
+  .counters { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px; margin-bottom: 14px; }
+  .counter { background: #131a16; border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px 14px; }
+  .counter .k { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .counter .v { font-size: 24px; font-weight: 700; margin-top: 4px; color: var(--ink); }
+  .counter .pct { font-size: 12px; color: var(--mint); margin-left: 6px; font-weight: 600; }
+  .counter .pct.warn { color: var(--amber); }
+  .counter .pct.bad { color: var(--red); }
+  .funnel-row { display: grid; grid-template-columns: 160px 1fr 90px; gap: 12px;
+    align-items: center; margin-bottom: 8px; }
+  .funnel-row .label { font-size: 13px; color: var(--ink); }
+  .funnel-row .bar { background: #131a16; border-radius: 6px; height: 22px; overflow: hidden;
+    border: 1px solid var(--line); }
+  .funnel-row .bar > div { height: 100%; background: linear-gradient(90deg, var(--mint), var(--blue)); }
+  .funnel-row .num { text-align: right; font-variant-numeric: tabular-nums;
+    color: var(--muted); font-size: 13px; }
+  .dropoff { font-size: 12px; color: var(--red); margin-left: 6px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line);
+    font-size: 13px; }
+  th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+  .stack-bar { display: flex; height: 24px; border-radius: 4px; overflow: hidden;
+    background: #131a16; margin-bottom: 4px; }
+  .stack-bar > div { height: 100%; }
+  .stack-sent { background: var(--mint); }
+  .stack-edited { background: var(--blue); }
+  .stack-dismissed { background: var(--red); }
+  .stack-expired { background: var(--muted); }
+  .stack-pending { background: var(--amber); }
+  .stack-proposed { background: var(--amber); }
+  .stack-accepted { background: var(--blue); }
+  .stack-resolved { background: var(--mint); }
+  .stack-declined { background: var(--red); }
+  .stack-cancelled { background: var(--purple); }
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px;
+    color: var(--muted); margin-top: 6px; }
+  .legend .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+    vertical-align: middle; margin-right: 4px; }
+  .week-row { display: grid; grid-template-columns: 100px 1fr 60px; gap: 10px;
+    align-items: center; margin-bottom: 4px; font-size: 12px; }
+  .week-row .wk { color: var(--muted); }
+  .week-row .wknum { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .winner-pie { display: flex; height: 24px; border-radius: 4px; overflow: hidden;
+    background: #131a16; margin: 8px 0; }
+  .winner-pie > div { height: 100%; }
+  .winner-owner { background: var(--mint); }
+  .winner-challenger { background: var(--blue); }
+  .winner-tie { background: var(--muted); }
+  .conv-funnel-row { display: grid; grid-template-columns: 160px 1fr 100px; gap: 12px;
+    align-items: center; margin-bottom: 6px; font-size: 13px; }
+  .conv-funnel-row .bar { background: #131a16; border-radius: 4px; height: 20px;
+    overflow: hidden; border: 1px solid var(--line); }
+  .conv-funnel-row .bar > div { height: 100%; }
+  .conv-connected-24h .bar > div { background: var(--mint); }
+  .conv-connected .bar > div { background: var(--blue); }
+  .conv-dismissed .bar > div { background: var(--red); }
+  .conv-no-action .bar > div { background: var(--muted); }
+  .conv-funnel-row .num { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .line-chart { position: relative; height: 140px; margin: 12px 0 4px;
+    background: #131a16; border-radius: 6px; border: 1px solid var(--line); padding: 6px; }
+  .line-chart svg { width: 100%; height: 100%; display: block; }
+  .line-chart .axis { stroke: var(--line); stroke-width: 1; }
+  .line-chart .line { stroke: var(--mint); stroke-width: 2; fill: none; }
+  .line-chart .dot { fill: var(--mint); }
+  .line-chart .fill { fill: rgba(79, 209, 165, 0.12); }
+  .muted { color: var(--muted); }
+  .refresh-ts { color: var(--muted); font-size: 12px; }
+  .empty { text-align: center; color: var(--muted); padding: 30px 20px; font-style: italic; }
+  .warn { color: var(--amber); font-size: 13px; padding: 8px 10px;
+    background: #1c2621; border-radius: 6px; margin-top: 8px; }
+  .flag { color: var(--amber); font-size: 12px; margin-top: 6px; font-style: italic; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 720px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .funnel-row { grid-template-columns: 110px 1fr 70px; }
+    .conv-funnel-row { grid-template-columns: 130px 1fr 80px; }
+  }
+  /* Login screen (same pattern as feedback panel) */
+  #login { position: fixed; inset: 0; display: flex; align-items: center;
+    justify-content: center; padding: 24px; }
+  #login form { width: 100%; max-width: 320px; background: var(--card);
+    border: 1px solid var(--line); border-radius: 16px; padding: 28px 24px;
+    display: flex; flex-direction: column; gap: 14px; text-align: center; }
+  #login h2 { margin: 0 0 4px; font-size: 20px; }
+  #login p { margin: 0; color: var(--muted); font-size: 13px; }
+  #login input[type=password] { font-size: 16px; padding: 12px 14px; text-align: center;
+    background: #131a16; border: 1px solid var(--line); color: var(--ink);
+    border-radius: 8px; }
+  #login button { background: var(--mint); color: var(--bg); border: 0;
+    border-radius: 10px; padding: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
+  #login .err { color: var(--red); font-size: 13px; min-height: 16px; }
+  .shake { animation: shake .4s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)}
+    40%,80%{transform:translateX(8px)} }
+  #app { display: none; }
+</style>
+</head>
+<body>
+<div id="login">
+  <form id="admin-login" method="POST" action="#" autocomplete="on">
+    <h2>📈 InRange Analytics</h2>
+    <p>Admin — lås upp för att se siffrorna.</p>
+    <input type="text" name="username" value="inrange-admin" autocomplete="username"
+      hidden readonly aria-hidden="true" />
+    <input id="pw" type="password" name="password" autocomplete="current-password"
+      placeholder="Admin-token" required autofocus />
+    <div id="loginErr" class="err"></div>
+    <button type="submit">Lås upp</button>
+  </form>
+</div>
+
+<div id="app">
+<header>
+  <h1>📈 Analytics</h1>
+  <span class="pill wp active" data-days="7" onclick="setWindow(7)">7d</span>
+  <span class="pill wp" data-days="30" onclick="setWindow(30)">30d</span>
+  <span class="pill wp" data-days="90" onclick="setWindow(90)">90d</span>
+  <div class="grow"></div>
+  <span id="refreshTs" class="refresh-ts">—</span>
+  <span class="pill" onclick="loadAll()">↻ Uppdatera</span>
+  <span class="pill" onclick="logout()">Logga ut</span>
+</header>
+
+<main>
+
+  <section id="secFunnel">
+    <h2>1) Onboarding funnel <span class="sub" id="funnelWindow">senaste 30 d</span></h2>
+    <div id="funnelBody" class="empty">Laddar…</div>
+  </section>
+
+  <section id="secDrafts">
+    <h2>2) Coach drafts <span class="sub">senaste 8 veckor</span></h2>
+    <div id="draftsBody" class="empty">Laddar…</div>
+  </section>
+
+  <section id="secMeals">
+    <h2>3) Meal challenges <span class="sub">senaste 4 veckor</span></h2>
+    <div id="mealsBody" class="empty">Laddar…</div>
+  </section>
+
+  <section id="secCTA">
+    <h2>4) Sensor-CTA conversion <span class="sub" id="ctaWindow">push senaste 30 d → connect</span></h2>
+    <div id="ctaBody" class="empty">Laddar…</div>
+  </section>
+
+  <section id="secRetention">
+    <h2>5) Retention pulse <span class="sub" id="retWindow">DAU · WAU · D1 · D7 (30d)</span></h2>
+    <div id="retentionBody" class="empty">Laddar…</div>
+  </section>
+
+</main>
+</div><!-- /#app -->
+
+<script>
+const API = "https://inrange-api.fly.dev/internal/admin/analytics";
+let token = sessionStorage.getItem("inrange_admin_token") || "";
+let windowDays = 30;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+const nf = n => (n == null ? "—" : n.toLocaleString("sv-SE"));
+const pct = p => (p == null ? "—" : p.toFixed(1) + "%");
+
+function showApp() { $("login").style.display = "none"; $("app").style.display = "block"; }
+function showLogin() {
+  $("app").style.display = "none";
+  $("login").style.display = "flex";
+  const pw = $("pw"); pw.value = ""; setTimeout(() => pw.focus(), 50);
+}
+function logout() { sessionStorage.removeItem("inrange_admin_token"); token = ""; showLogin(); }
+
+async function tryLogin(candidate) {
+  const res = await fetch(API + "/onboarding-funnel?days=7", {
+    headers: { "X-Admin-Token": candidate },
+  });
+  return res.ok;
+}
+$("admin-login").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const candidate = $("pw").value.trim();
+  const err = $("loginErr");
+  err.textContent = "";
+  if (!candidate) return;
+  try {
+    if (await tryLogin(candidate)) {
+      token = candidate;
+      sessionStorage.setItem("inrange_admin_token", token);
+      showApp();
+      loadAll();
+    } else {
+      err.textContent = "Fel token — försök igen.";
+      const form = $("admin-login");
+      form.classList.remove("shake"); void form.offsetWidth; form.classList.add("shake");
+      $("pw").value = ""; $("pw").focus();
+    }
+  } catch {
+    err.textContent = "Nätverksfel — försök igen.";
+  }
+});
+
+async function api(path) {
+  const res = await fetch(API + path, {
+    headers: { "X-Admin-Token": token, "Content-Type": "application/json" },
+  });
+  if (res.status === 401) { logout(); throw new Error("unauthorized"); }
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  return res.json();
+}
+
+function setWindow(days) {
+  windowDays = days;
+  document.querySelectorAll(".wp").forEach(p =>
+    p.classList.toggle("active", Number(p.dataset.days) === days)
+  );
+  $("funnelWindow").textContent = "senaste " + days + " d";
+  $("ctaWindow").textContent = "push senaste " + days + " d → connect";
+  $("retWindow").textContent = "DAU · WAU · D1 · D7 (" + days + "d)";
+  loadAll();
+}
+
+async function loadAll() {
+  const now = new Date();
+  $("refreshTs").textContent = "Uppdaterat " + now.toLocaleTimeString("sv-SE");
+  await Promise.allSettled([
+    loadFunnel(),
+    loadDrafts(),
+    loadMeals(),
+    loadCTA(),
+    loadRetention(),
+  ]);
+}
+
+// ── 1) Onboarding funnel ──────────────────────────────────────────────────
+async function loadFunnel() {
+  const body = $("funnelBody");
+  try {
+    const d = await api(`/onboarding-funnel?days=${windowDays}`);
+    if (d.steps[0].count === 0) {
+      body.innerHTML = `<div class="empty">Inga signups i fönstret.</div>`;
+      return;
+    }
+    const max = d.steps[0].count || 1;
+    const rows = d.steps.map((s, i) => {
+      const width = Math.max(2, Math.round(100 * s.count / max));
+      const dropoff = i > 0 && s.dropoff_pct > 0
+        ? `<span class="dropoff">-${pct(s.dropoff_pct)}</span>` : "";
+      const conv = i > 0 ? `<span class="muted">→ ${pct(s.conversion_pct)}${dropoff}</span>` : "";
+      const flag = s.proxy ? `<div class="flag">⚠️ ${esc(s.proxy)}</div>` : "";
+      return `
+        <div class="funnel-row">
+          <div class="label">${esc(s.label)}${flag}</div>
+          <div class="bar"><div style="width:${width}%"></div></div>
+          <div class="num">${nf(s.count)} ${conv}</div>
+        </div>`;
+    }).join("");
+    body.innerHTML = rows;
+    body.classList.remove("empty");
+  } catch (e) {
+    body.innerHTML = `<div class="empty">Kunde inte hämta funnel: ${esc(e.message)}</div>`;
+  }
+}
+
+// ── 2) Coach drafts ────────────────────────────────────────────────────────
+async function loadDrafts() {
+  const body = $("draftsBody");
+  try {
+    const d = await api(`/coach-drafts?weeks=8`);
+    if (d.total === 0) {
+      body.innerHTML = `<div class="empty">Inga coach-drafts senaste 8 veckorna.</div>`;
+      return;
+    }
+    const t = d.totals;
+    const counters = `
+      <div class="counters">
+        <div class="counter"><div class="k">Total</div><div class="v">${nf(d.total)}</div></div>
+        <div class="counter"><div class="k">Approve-rate</div><div class="v">${pct(d.approve_rate_pct)}</div></div>
+        <div class="counter"><div class="k">Edit-rate</div><div class="v">${pct(d.edit_rate_pct)}</div></div>
+        <div class="counter"><div class="k">Pending</div><div class="v">${nf(t.pending)}</div></div>
+        <div class="counter"><div class="k">Dismissed</div><div class="v">${nf(t.dismissed)}</div></div>
+        <div class="counter"><div class="k">Expired</div><div class="v">${nf(t.expired)}</div></div>
+      </div>`;
+
+    // Stacked bar per vecka.
+    const maxWeek = Math.max(1, ...d.weekly.map(w =>
+      w.pending + w.sent + w.edited_sent + w.dismissed + w.expired));
+    const weekly = d.weekly.map(w => {
+      const total = w.pending + w.sent + w.edited_sent + w.dismissed + w.expired;
+      const parts = [
+        ["pending", w.pending],
+        ["sent", w.sent],
+        ["edited", w.edited_sent],
+        ["dismissed", w.dismissed],
+        ["expired", w.expired],
+      ];
+      const bar = total === 0
+        ? `<div style="width:2%;background:#131a16"></div>`
+        : parts.map(([cls, n]) =>
+            n ? `<div class="stack-${cls}" style="flex:${n}" title="${cls}: ${n}"></div>` : ""
+          ).join("");
+      return `
+        <div class="week-row">
+          <span class="wk">v. ${w.week_starting}</span>
+          <div class="stack-bar" style="opacity:${total ? 1 : 0.4}">${bar}</div>
+          <span class="wknum">${nf(total)}</span>
+        </div>`;
+    }).join("");
+
+    const legend = `
+      <div class="legend">
+        <span><span class="sw stack-sent"></span>sent</span>
+        <span><span class="sw stack-edited"></span>edited_sent</span>
+        <span><span class="sw stack-dismissed"></span>dismissed</span>
+        <span><span class="sw stack-pending"></span>pending</span>
+        <span><span class="sw stack-expired"></span>expired</span>
+      </div>`;
+
+    // Trigger table.
+    const trigOrder = ["cheer_streak", "milestone", "birthday_neighbor", "tough_night", "spontaneous"];
+    const trigRows = trigOrder.map(t => {
+      const b = d.by_trigger[t] || {};
+      const total = (b.pending||0) + (b.sent||0) + (b.edited_sent||0) + (b.dismissed||0) + (b.expired||0);
+      const sent = (b.sent||0) + (b.edited_sent||0);
+      const rate = total ? (100 * sent / total).toFixed(0) + "%" : "—";
+      return `<tr><td>${esc(t)}</td><td class="num">${nf(total)}</td>
+        <td class="num">${nf(b.sent||0)}</td><td class="num">${nf(b.edited_sent||0)}</td>
+        <td class="num">${nf(b.dismissed||0)}</td><td class="num">${nf(b.expired||0)}</td>
+        <td class="num">${rate}</td></tr>`;
+    }).join("");
+
+    body.innerHTML = counters + `
+      <h4 style="margin:12px 0 6px;font-size:12px;color:var(--muted);text-transform:uppercase">Per vecka (8 st)</h4>
+      ${weekly}
+      ${legend}
+      <h4 style="margin:14px 0 6px;font-size:12px;color:var(--muted);text-transform:uppercase">Per trigger-typ</h4>
+      <table>
+        <thead><tr><th>Trigger</th><th class="num">Total</th><th class="num">Sent</th>
+          <th class="num">Edited</th><th class="num">Dismiss</th><th class="num">Expire</th>
+          <th class="num">Approve %</th></tr></thead>
+        <tbody>${trigRows}</tbody>
+      </table>`;
+    body.classList.remove("empty");
+  } catch (e) {
+    body.innerHTML = `<div class="empty">Kunde inte hämta drafts: ${esc(e.message)}</div>`;
+  }
+}
+
+// ── 3) Meal challenges ────────────────────────────────────────────────────
+async function loadMeals() {
+  const body = $("mealsBody");
+  try {
+    const d = await api(`/meal-challenges?weeks=4`);
+    if (d.total === 0) {
+      body.innerHTML = `<div class="empty">Inga meal challenges senaste 4 veckorna.</div>`;
+      return;
+    }
+    const t = d.totals;
+    const counters = `
+      <div class="counters">
+        <div class="counter"><div class="k">Total</div><div class="v">${nf(d.total)}</div></div>
+        <div class="counter"><div class="k">Proposed</div><div class="v">${nf(t.proposed)}</div></div>
+        <div class="counter"><div class="k">Accepted</div><div class="v">${nf(t.accepted)}</div></div>
+        <div class="counter"><div class="k">Resolved</div><div class="v">${nf(t.resolved)}</div></div>
+        <div class="counter"><div class="k">Declined</div><div class="v">${nf(t.declined)}</div></div>
+        <div class="counter"><div class="k">Expired</div><div class="v">${nf(t.expired)}</div></div>
+      </div>`;
+
+    const medians = `
+      <div class="counters">
+        <div class="counter"><div class="k">Median margin (owner)</div>
+          <div class="v">${d.median_margin_owner_units ?? "—"} <span class="muted" style="font-size:14px">u</span></div></div>
+        <div class="counter"><div class="k">Median margin (follower)</div>
+          <div class="v">${d.median_margin_challenger_units ?? "—"} <span class="muted" style="font-size:14px">u</span></div></div>
+      </div>`;
+
+    const wTot = d.winners.owner + d.winners.challenger + d.winners.tie;
+    const winnerPie = wTot ? `
+      <h4 style="margin:14px 0 6px;font-size:12px;color:var(--muted);text-transform:uppercase">Vinnare (${wTot} resolved)</h4>
+      <div class="winner-pie">
+        ${d.winners.owner ? `<div class="winner-owner" style="flex:${d.winners.owner}" title="owner: ${d.winners.owner}"></div>` : ""}
+        ${d.winners.challenger ? `<div class="winner-challenger" style="flex:${d.winners.challenger}" title="follower: ${d.winners.challenger}"></div>` : ""}
+        ${d.winners.tie ? `<div class="winner-tie" style="flex:${d.winners.tie}" title="tie: ${d.winners.tie}"></div>` : ""}
+      </div>
+      <div class="legend">
+        <span><span class="sw winner-owner"></span>owner (${d.winners.owner})</span>
+        <span><span class="sw winner-challenger"></span>follower (${d.winners.challenger})</span>
+        <span><span class="sw winner-tie"></span>tie (${d.winners.tie})</span>
+      </div>` : "";
+
+    // Weekly stacked.
+    const weekly = d.weekly.map(w => {
+      const total = w.proposed + w.accepted + w.resolved + w.declined + w.expired + w.cancelled;
+      const parts = [
+        ["proposed", w.proposed],
+        ["accepted", w.accepted],
+        ["resolved", w.resolved],
+        ["declined", w.declined],
+        ["expired", w.expired],
+        ["cancelled", w.cancelled],
+      ];
+      const bar = total === 0
+        ? `<div style="width:2%;background:#131a16"></div>`
+        : parts.map(([cls, n]) =>
+            n ? `<div class="stack-${cls}" style="flex:${n}" title="${cls}: ${n}"></div>` : ""
+          ).join("");
+      return `
+        <div class="week-row">
+          <span class="wk">v. ${w.week_starting}</span>
+          <div class="stack-bar" style="opacity:${total ? 1 : 0.4}">${bar}</div>
+          <span class="wknum">${nf(total)}</span>
+        </div>`;
+    }).join("");
+
+    body.innerHTML = counters + medians + winnerPie + `
+      <h4 style="margin:14px 0 6px;font-size:12px;color:var(--muted);text-transform:uppercase">Trend (4 veckor)</h4>
+      ${weekly}
+      <div class="legend">
+        <span><span class="sw stack-resolved"></span>resolved</span>
+        <span><span class="sw stack-accepted"></span>accepted</span>
+        <span><span class="sw stack-proposed"></span>proposed</span>
+        <span><span class="sw stack-declined"></span>declined</span>
+        <span><span class="sw stack-expired"></span>expired</span>
+        <span><span class="sw stack-cancelled"></span>cancelled</span>
+      </div>`;
+    body.classList.remove("empty");
+  } catch (e) {
+    body.innerHTML = `<div class="empty">Kunde inte hämta meals: ${esc(e.message)}</div>`;
+  }
+}
+
+// ── 4) Sensor-CTA conversion ──────────────────────────────────────────────
+async function loadCTA() {
+  const body = $("ctaBody");
+  try {
+    const d = await api(`/sensor-cta-conversion?days=${windowDays}`);
+    if (d.pushed === 0) {
+      body.innerHTML = `<div class="empty">Ingen sensor-CTA push levererad i fönstret.</div>`;
+      return;
+    }
+    const counters = `
+      <div class="counters">
+        <div class="counter"><div class="k">Push levererade</div>
+          <div class="v">${nf(d.pushed)}</div></div>
+        <div class="counter"><div class="k">Connected (any time)</div>
+          <div class="v">${nf(d.connected)}<span class="pct">${pct(d.connected_pct)}</span></div></div>
+        <div class="counter"><div class="k">Connected < 24h</div>
+          <div class="v">${nf(d.connected_within_24h)}<span class="pct">${pct(d.connected_within_24h_pct)}</span></div></div>
+        <div class="counter"><div class="k">Dismissed</div>
+          <div class="v">${nf(d.dismissed)}<span class="pct warn">${pct(d.dismissed_pct)}</span></div></div>
+        <div class="counter"><div class="k">Ingen action</div>
+          <div class="v">${nf(d.no_action)}<span class="pct bad">${pct(d.no_action_pct)}</span></div></div>
+      </div>
+      <div class="conv-funnel-row conv-connected-24h">
+        <div>Connected inom 24h</div>
+        <div class="bar"><div style="width:${d.connected_within_24h_pct}%"></div></div>
+        <div class="num">${nf(d.connected_within_24h)} · ${pct(d.connected_within_24h_pct)}</div>
+      </div>
+      <div class="conv-funnel-row conv-connected">
+        <div>Connected (senare)</div>
+        <div class="bar"><div style="width:${d.connected_pct}%"></div></div>
+        <div class="num">${nf(d.connected)} · ${pct(d.connected_pct)}</div>
+      </div>
+      <div class="conv-funnel-row conv-dismissed">
+        <div>Dismissade CTA:n</div>
+        <div class="bar"><div style="width:${d.dismissed_pct}%"></div></div>
+        <div class="num">${nf(d.dismissed)} · ${pct(d.dismissed_pct)}</div>
+      </div>
+      <div class="conv-funnel-row conv-no-action">
+        <div>Ingen action</div>
+        <div class="bar"><div style="width:${d.no_action_pct}%"></div></div>
+        <div class="num">${nf(d.no_action)} · ${pct(d.no_action_pct)}</div>
+      </div>
+      ${d.note ? `<div class="warn">⚠️ ${esc(d.note)}</div>` : ""}
+    `;
+    body.innerHTML = counters;
+    body.classList.remove("empty");
+  } catch (e) {
+    body.innerHTML = `<div class="empty">Kunde inte hämta CTA: ${esc(e.message)}</div>`;
+  }
+}
+
+// ── 5) Retention pulse ────────────────────────────────────────────────────
+function renderDauChart(series) {
+  if (!series.length) return "";
+  const w = 800, h = 130, pad = 20;
+  const max = Math.max(1, ...series.map(p => p.dau));
+  const step = (w - pad * 2) / Math.max(1, series.length - 1);
+  const pts = series.map((p, i) => {
+    const x = pad + i * step;
+    const y = h - pad - (p.dau / max) * (h - pad * 2);
+    return [x, y, p];
+  });
+  const polyline = pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+  const dots = pts.map(([x, y, p]) =>
+    `<circle class="dot" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2"><title>${p.date}: ${p.dau}</title></circle>`
+  ).join("");
+  return `
+    <div class="line-chart">
+      <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+        <line class="axis" x1="${pad}" y1="${h - pad}" x2="${w - pad}" y2="${h - pad}" />
+        <line class="axis" x1="${pad}" y1="${pad}" x2="${pad}" y2="${h - pad}" />
+        <polyline class="fill" points="${pad},${h - pad} ${polyline} ${(pad + (series.length - 1) * step).toFixed(1)},${h - pad}"/>
+        <polyline class="line" points="${polyline}" />
+        ${dots}
+      </svg>
+    </div>
+    <div class="legend">
+      <span>Y = distinkta users med chat- eller glukos-aktivitet den dagen.</span>
+      <span>${series[0].date} → ${series[series.length - 1].date}</span>
+      <span>peak: ${max}</span>
+    </div>`;
+}
+
+async function loadRetention() {
+  const body = $("retentionBody");
+  try {
+    const d = await api(`/retention?days=${windowDays}`);
+    const counters = `
+      <div class="counters">
+        <div class="counter"><div class="k">DAU (24h)</div><div class="v">${nf(d.dau)}</div></div>
+        <div class="counter"><div class="k">WAU (7d)</div><div class="v">${nf(d.wau)}</div></div>
+        <div class="counter"><div class="k">Nya signups (${windowDays}d)</div>
+          <div class="v">${nf(d.new_signups)}</div></div>
+        <div class="counter"><div class="k">D1 return-rate</div>
+          <div class="v">${pct(d.d1_return_rate_pct)}<span class="muted" style="font-size:12px;margin-left:4px">${nf(d.d1_returned)}/${nf(d.new_signups)}</span></div></div>
+        <div class="counter"><div class="k">D7 return-rate</div>
+          <div class="v">${pct(d.d7_return_rate_pct)}<span class="muted" style="font-size:12px;margin-left:4px">${nf(d.d7_returned)}/${nf(d.new_signups)}</span></div></div>
+      </div>
+      ${renderDauChart(d.dau_series || [])}`;
+    body.innerHTML = counters;
+    body.classList.remove("empty");
+  } catch (e) {
+    body.innerHTML = `<div class="empty">Kunde inte hämta retention: ${esc(e.message)}</div>`;
+  }
+}
+
+// Start: already-logged-in? go directly; otherwise show login.
+if (token) { showApp(); loadAll(); setInterval(() => { if (token) loadAll(); }, 60000); }
+else { showLogin(); }
+</script>
+</body>
+</html>
