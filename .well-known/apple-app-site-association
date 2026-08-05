@@ -4,7 +4,8 @@
       {
         "appIDs": ["X2QTFGMJ82.ai.getinrange.app"],
         "components": [
-          { "/": "/friends/accept*", "comment": "Friend invite deep links" }
+          { "/": "/friends/accept*", "comment": "Friend invite deep links" },
+          { "/": "/signal/linked*", "comment": "Signal channel-link confirmed deep links (Pass 26)" }
         ]
       }
     ]
