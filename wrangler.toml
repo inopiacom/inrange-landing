@@ -1,0 +1,10 @@
+name = "inrange-landing"
+compatibility_date = "2026-07-01"
+
+# Static-assets-only Worker: the live site is served by GitHub Pages
+# (CNAME → getinrange.ai). This config exists solely so the Cloudflare
+# GitHub App's "Workers Builds" check on PRs completes successfully.
+# Wrangler ignores dotfiles/dot-dirs by default (.git, .github, etc.).
+[assets]
+directory = "./"
+not_found_handling = "404-page"
