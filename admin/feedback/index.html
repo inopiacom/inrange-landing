@@ -67,6 +67,73 @@
     th.hide-sm, td.hide-sm { display: none; }
     main { padding: 12px; }
   }
+  /* Pass 70b: layer badge (click to change) */
+  .layer-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    border: 0; border-radius: 999px; padding: 3px 8px;
+    font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;
+    position: relative; font-family: inherit;
+  }
+  .layer-badge:hover { filter: brightness(1.1); }
+  .layer-badge:focus-visible { outline: 2px solid var(--mint); outline-offset: 1px; }
+  .layer-fail {
+    position: absolute; top: -5px; right: -5px;
+    background: var(--red); color: #fff;
+    border-radius: 999px; min-width: 14px; height: 14px; padding: 0 3px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800; line-height: 1;
+  }
+  .layer-menu {
+    position: absolute; z-index: 100;
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 6px; display: flex; flex-direction: column; gap: 4px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  }
+  .layer-menu-opt {
+    display: flex; align-items: center; gap: 6px;
+    border: 0; border-radius: 8px; padding: 6px 12px;
+    font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+    text-align: left; font-family: inherit; min-width: 140px;
+  }
+  .layer-menu-opt:hover { filter: brightness(1.15); }
+  /* Pass 70b: CC status + kick button */
+  .cc-status { font-size: 16px; cursor: default; }
+  .kick-btn {
+    background: transparent; border: 1px solid var(--line);
+    border-radius: 8px; padding: 4px 10px; font-size: 15px; cursor: pointer; color: var(--ink);
+    font-family: inherit;
+  }
+  .kick-btn:hover { background: var(--card); border-color: var(--mint); }
+  .kick-btn:focus-visible { outline: 2px solid var(--mint); outline-offset: 1px; }
+  .cc-inprogress { display: inline-block; animation: cc-spin 1.8s linear infinite; }
+  @keyframes cc-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  /* Pass 70b: toast */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 200;
+    background: var(--mint); color: var(--bg);
+    padding: 12px 18px; border-radius: 10px;
+    font-size: 14px; font-weight: 700;
+    box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    opacity: 0; transform: translateY(10px);
+    transition: opacity .18s ease, transform .18s ease;
+    pointer-events: none;
+    max-width: 320px;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+  #toast.err { background: var(--red); color: #fff; }
+  /* Pass 70b: multi-select bulk bar */
+  .bulk-bar {
+    display: none; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 10px 12px; background: var(--card); border: 1px solid var(--mint);
+    border-radius: 10px; margin-bottom: 12px;
+  }
+  .bulk-bar b { color: var(--mint); }
+  /* Pass 70b: checkbox column */
+  input[type=checkbox] { accent-color: var(--mint); cursor: pointer; width: 16px; height: 16px; margin: 0; }
+  th.check-col, td.check-col { width: 32px; padding-right: 0; }
+  /* Pass 70b: kick-group / kick-all buttons */
+  .b-kick { background: var(--amber); color: var(--bg); }
+  .b-kickall { background: var(--red); color: #fff; }
   /* Login screen (Keychain-friendly HTML form) */
   #login { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 24px; }
   #login form { width: 100%; max-width: 320px; background: var(--card); border: 1px solid var(--line);
@@ -124,8 +191,28 @@
     </select>
     <input type="search" id="search" placeholder="Sök titel…" oninput="render()" />
   </div>
+  <div class="filters">
+    <span class="muted" style="font-size:13px">Grupp:</span>
+    <select id="groupFilter" onchange="onGroupFilterChange()">
+      <option value="">Alla grupper</option>
+      <option value="__inbox__">📥 Inbox (ingen grupp)</option>
+    </select>
+    <button class="act b-kick" onclick="kickGroup()" title="Kicka alla godkända i vald grupp">🚀 Kicka grupp</button>
+    <button class="act b-kickall" onclick="openKickAll()" title="Kicka alla godkända items (över alla grupper)">💥 Kicka allt</button>
+    <button class="act b-approve" onclick="openNewGroup()">+ Ny grupp</button>
+  </div>
+  <div class="bulk-bar" id="bulkBar">
+    <b><span id="bulkCount">0 valda</span></b>
+    <span class="grow" style="flex:1"></span>
+    <select id="bulkAssignGroup">
+      <option value="">Flytta till grupp…</option>
+    </select>
+    <button class="act b-approve" onclick="bulkAssign()">Flytta</button>
+    <button class="act" style="background:var(--card);border:1px solid var(--line);color:var(--ink)" onclick="clearBulkSelect()">Rensa</button>
+  </div>
   <table>
     <thead><tr>
+      <th class="check-col"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this.checked)" title="Markera alla" /></th>
       <th data-sort="created_at">Skapad</th>
       <th>Typ</th>
       <th class="hide-sm">Läge</th>
@@ -133,6 +220,9 @@
       <th data-sort="title">Titel</th>
       <th class="hide-sm">Användare</th>
       <th data-sort="status">Status</th>
+      <th>Layer</th>
+      <th title="Claude Code job-status">CC</th>
+      <th></th>
     </tr></thead>
     <tbody id="rows"></tbody>
   </table>
@@ -243,6 +333,16 @@
     <button class="act" onclick="sugRejectDlg.close()">Avbryt</button>
   </div>
 </dialog>
+
+<dialog id="kickAllDlg">
+  <h3>💥 Kicka allt godkänt</h3>
+  <p class="warn">Kicka <span id="kickAllCount">?</span> items? Kan inte ångras.</p>
+  <p class="muted" style="font-size:13px">Skapar ett cc_jobs-jobb per godkänt-men-ej-processat item.</p>
+  <div class="actions">
+    <button class="act b-kickall" onclick="confirmKickAll()">Kicka alla</button>
+    <button class="act" onclick="kickAllDlg.close()">Avbryt</button>
+  </div>
+</dialog>
 </div><!-- /#app -->
 
 <script>
@@ -340,6 +440,7 @@ function render() {
   const q = $("search").value.trim().toLowerCase();
   let rows = items.slice();
   if (q) rows = rows.filter(i => (i.title || "").toLowerCase().includes(q));
+  if (groupFilter) rows = rows.filter(i => matchGroup(i, groupFilter));
   rows.sort((a, b) => {
     const x = (a[sortKey] || ""), y = (b[sortKey] || "");
     return (x < y ? -1 : x > y ? 1 : 0) * sortDir;
@@ -348,6 +449,11 @@ function render() {
   rows.forEach(i => tb.appendChild(rowEl(i)));
   $("empty").style.display = rows.length ? "none" : "block";
   $("count").textContent = rows.length + " poster";
+  // Prune selectedIds that are no longer in the current items list.
+  const visibleIds = new Set(items.map(i => i.id));
+  for (const id of [...selectedIds]) if (!visibleIds.has(id)) selectedIds.delete(id);
+  updateBulkBar();
+  const sel = $("selectAll"); if (sel) sel.checked = false;
 }
 
 function maskUser(uid) {
@@ -366,14 +472,20 @@ function ago(iso) {
 function rowEl(i) {
   const tr = document.createElement("tr");
   tr.className = "row";
+  const checked = selectedIds.has(i.id) ? "checked" : "";
   tr.innerHTML = `
+    <td class="check-col"><input type="checkbox" class="row-check" ${checked}
+      onclick="event.stopPropagation();toggleSelect('${i.id}',this.checked)" /></td>
     <td title="${i.created_at || ""}">${ago(i.created_at)}</td>
     <td class="kind">${KIND_ICON[i.kind] || "•"}</td>
     <td class="hide-sm">${i.mode || ""}</td>
     <td class="hide-sm">${i.category || ""}</td>
     <td>${escapeHtml(i.title || "")}</td>
     <td class="hide-sm muted">${maskUser(i.user_id)}</td>
-    <td><span class="status s-${i.status}">${i.status}</span></td>`;
+    <td><span class="status s-${i.status}">${i.status}</span></td>
+    <td>${renderLayerBadge(i)}</td>
+    <td>${renderCCStatus(i)}</td>
+    <td>${renderKickBtn(i)}</td>`;
   tr.onclick = () => toggleDetail(tr, i);
   return tr;
 }
@@ -389,7 +501,7 @@ function toggleDetail(tr, i) {
   const grpLine = grpName
     ? `<h4>Grupp</h4><pre>🔁 ${escapeHtml(grpName)}${i.resolution_status && i.resolution_status !== "open" ? " · " + i.resolution_status : ""}</pre>`
     : "";
-  d.innerHTML = `<td colspan="7">
+  d.innerHTML = `<td colspan="11">
     <h4>Beskrivning</h4><pre>${escapeHtml(i.description || "—")}</pre>
     ${i.implementation_proposal ? `<h4>Förslag</h4><pre>${escapeHtml(i.implementation_proposal)}</pre>` : ""}
     ${i.reproduction_steps ? `<h4>Reproduktion</h4><pre>${escapeHtml(i.reproduction_steps)}</pre>` : ""}
@@ -470,6 +582,8 @@ async function loadGroups() {
     const data = await api("/groups", "GET");
     groups = data.groups || [];
     renderGroups();
+    renderGroupFilter();
+    renderBulkAssignGroups();
   } catch (e) { console.error(e); }
 }
 
@@ -528,9 +642,23 @@ function openNewGroup() { $("newGroupTitle").value = ""; $("newGroupDlg").showMo
 async function confirmNewGroup() {
   const title = $("newGroupTitle").value.trim();
   if (!title) return;
-  await api("/groups", "POST", { title });
+  const res = await api("/groups", "POST", { title });
   $("newGroupDlg").close();
+  // Pass 70b: if items were selected in the queue, auto-assign them to the new group.
+  const newId = res && (res.id || res.group_id);
+  if (newId && selectedIds.size) {
+    const ids = [...selectedIds];
+    for (const id of ids) {
+      try { await api("/" + id + "/assign", "POST", { group_id: newId }); }
+      catch (e) { console.error("assign failed", id, e); }
+    }
+    selectedIds.clear();
+    toast(`Ny grupp skapad — ${ids.length} item(s) flyttade`);
+  } else {
+    toast("Grupp skapad");
+  }
   await loadGroups();
+  if (currentView === "feedback") await load();
 }
 
 // Resolve
@@ -682,10 +810,279 @@ function startPanel() {
   if (panelStarted) { load(); return; }
   panelStarted = true;
   load();
-  setInterval(() => { if (token) load(); }, 60000);
+  loadGroups();  // Pass 70b: populate group filter + bulk-assign dropdown up front.
+  // Pass 70b: 30s auto-refresh so cc_jobs-status ticker syns i UI:t.
+  setInterval(() => { if (token && currentView === "feedback") load(); }, 30000);
   // Build 65: Signal-notisen länkar till #suggested → öppna den vyn direkt.
   if (location.hash === "#suggested") switchView("suggested");
   else loadSuggested();  // fyll förslags-badgen även i kö-vyn
+}
+
+// ── Pass 70b: layer badge + kick-CC + grouping ──────────────────────────────
+// Layer taxonomy (per Pass 70a backend):
+//   ios_only     — App Store-release krävs
+//   backend_only — bara Fly deploy
+//   both         — backend + App Store
+//   neither      — dokumentation/dashboard
+//   unknown      — LLM klassade inte (eller layer_source == "llm-failed")
+const LAYERS = {
+  ios_only:     { label: "iOS",     icon: "🍎", bg: "#3B82F6", fg: "#ffffff" },
+  backend_only: { label: "Backend", icon: "⚙️", bg: "#10B981", fg: "#ffffff" },
+  both:         { label: "Both",    icon: "🔀", bg: "#8B5CF6", fg: "#ffffff" },
+  neither:      { label: "None",    icon: "📄", bg: "#6B7280", fg: "#ffffff" },
+  unknown:      { label: "Unknown", icon: "❓", bg: "#F59E0B", fg: "#0f1512" },
+};
+const LAYER_KEYS = ["ios_only", "backend_only", "both", "neither", "unknown"];
+
+// cc_jobs status → icon + tooltip.
+const CC_STATUS = {
+  pending:  { icon: "🕓", label: "I kö" },
+  claimed:  { icon: "🔄", label: "Mac-daemon plockat" },
+  launched: { icon: "🏗", label: "CC-session igång" },
+  merged:   { icon: "✅", label: "PR mergad" },
+  shipped:  { icon: "🚀", label: "Build på TestFlight" },
+  failed:   { icon: "❌", label: "Fel" },
+};
+const CC_IN_PROGRESS = new Set(["pending", "claimed", "launched"]);
+const CC_DONE = new Set(["merged", "shipped"]);
+
+let groupFilter = "";                 // "" | "__inbox__" | group_id
+let selectedIds = new Set();
+let layerMenuEl = null;
+let layerMenuCloser = null;
+let toastTimer = null;
+
+// ── Render helpers ──────────────────────────────────────────────────────────
+function ccStatusOf(i) {
+  return i.cc_status || i.cc_job_status || (i.cc_job && i.cc_job.status) || null;
+}
+function ccErrorOf(i) {
+  return i.cc_job_error || (i.cc_job && i.cc_job.error) || "";
+}
+function groupIdOf(i) {
+  return i.group_id || i.feedback_group_id || null;
+}
+
+function renderLayerBadge(i) {
+  const key = LAYERS[i.layer] ? i.layer : "unknown";
+  const cfg = LAYERS[key];
+  const failed = i.layer_source === "llm-failed";
+  return `<button class="layer-badge" style="background:${cfg.bg};color:${cfg.fg}"
+      onclick="event.stopPropagation();openLayerPicker(event,'${i.id}','${key}')"
+      title="${escapeAttr(cfg.label)} · klicka för att ändra">
+    <span>${cfg.icon}</span><span>${cfg.label}</span>${failed ? '<span class="layer-fail" title="LLM misslyckades klassa">!</span>' : ""}
+  </button>`;
+}
+
+function renderCCStatus(i) {
+  const status = ccStatusOf(i);
+  if (!status) return "";
+  const cfg = CC_STATUS[status];
+  if (!cfg) return `<span class="muted" title="${escapeAttr(status)}">${escapeHtml(status)}</span>`;
+  const err = ccErrorOf(i);
+  const tip = cfg.label + (err ? " — " + err : "");
+  return `<span class="cc-status" title="${escapeAttr(tip)}">${cfg.icon}</span>`;
+}
+
+function renderKickBtn(i) {
+  const status = ccStatusOf(i);
+  if (CC_IN_PROGRESS.has(status)) {
+    return `<span class="cc-inprogress" title="CC-jobbet är igång — vänta">⏳</span>`;
+  }
+  if (CC_DONE.has(status)) {
+    return `<span title="${escapeAttr(CC_STATUS[status].label)}">✅</span>`;
+  }
+  if (status === "failed") {
+    const err = ccErrorOf(i);
+    return `<button class="kick-btn" onclick="event.stopPropagation();kickCC('${i.id}')"
+      title="${escapeAttr('Failed — ' + (err || 'ingen error-info') + ' · klicka för att försöka igen')}">❌</button>`;
+  }
+  return `<button class="kick-btn" onclick="event.stopPropagation();kickCC('${i.id}')"
+    title="Kicka CC-jobb">🚀</button>`;
+}
+
+// ── Layer picker (floating dropdown) ────────────────────────────────────────
+function openLayerPicker(ev, id, currentLayer) {
+  closeLayerPicker();
+  const rect = ev.currentTarget.getBoundingClientRect();
+  const menu = document.createElement("div");
+  menu.className = "layer-menu";
+  menu.style.top = (rect.bottom + window.scrollY + 4) + "px";
+  menu.style.left = (rect.left + window.scrollX) + "px";
+  LAYER_KEYS.forEach(key => {
+    const cfg = LAYERS[key];
+    const opt = document.createElement("button");
+    opt.type = "button";
+    opt.className = "layer-menu-opt";
+    opt.style.background = cfg.bg;
+    opt.style.color = cfg.fg;
+    opt.textContent = `${cfg.icon} ${cfg.label}${key === currentLayer ? "  ✓" : ""}`;
+    opt.onclick = (e) => { e.stopPropagation(); setLayer(id, key); };
+    menu.appendChild(opt);
+  });
+  menu.addEventListener("click", (e) => e.stopPropagation());
+  document.body.appendChild(menu);
+  layerMenuEl = menu;
+  // Defer so the current click bubble doesn't immediately close the menu.
+  const closer = () => closeLayerPicker();
+  layerMenuCloser = closer;
+  setTimeout(() => { if (layerMenuCloser === closer) document.addEventListener("click", closer); }, 0);
+}
+function closeLayerPicker() {
+  if (layerMenuEl) { layerMenuEl.remove(); layerMenuEl = null; }
+  if (layerMenuCloser) { document.removeEventListener("click", layerMenuCloser); layerMenuCloser = null; }
+}
+async function setLayer(id, layer) {
+  closeLayerPicker();
+  // Optimistic local update so the badge feels responsive.
+  const item = items.find(x => x.id === id);
+  if (item) { item.layer = layer; item.layer_source = "manual"; render(); }
+  try {
+    await api("/" + id + "/layer", "PATCH", { layer, source: "manual" });
+    toast(`Layer → ${LAYERS[layer].label}`);
+    await load();
+  } catch (e) {
+    toast("Kunde inte spara layer", true);
+    await load();
+  }
+}
+
+// ── Kick-CC (single item) ───────────────────────────────────────────────────
+async function kickCC(id) {
+  try {
+    const res = await api("/" + id + "/kick-cc", "POST");
+    const jobId = (res && (res.job_id || res.id || res.cc_job_id)) || "";
+    const short = jobId ? String(jobId).slice(0, 8) : "";
+    toast(short ? `Kickad — jobb-id ${short}` : "Kickad");
+    await load();
+  } catch (e) {
+    toast("Kunde inte kicka CC-jobb", true);
+  }
+}
+
+// ── Toast ────────────────────────────────────────────────────────────────────
+function toast(msg, isErr) {
+  let t = $("toast");
+  if (!t) { t = document.createElement("div"); t.id = "toast"; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.toggle("err", !!isErr);
+  requestAnimationFrame(() => t.classList.add("show"));
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+// ── Group filter + bulk-kick ────────────────────────────────────────────────
+function renderGroupFilter() {
+  const sel = $("groupFilter");
+  if (!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = "";
+  sel.appendChild(new Option("Alla grupper", ""));
+  sel.appendChild(new Option("📥 Inbox (ingen grupp)", "__inbox__"));
+  groups.forEach(g => sel.appendChild(new Option(`🔁 ${g.title}`, g.id)));
+  if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
+  groupFilter = sel.value;
+}
+function renderBulkAssignGroups() {
+  const sel = $("bulkAssignGroup");
+  if (!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = "";
+  sel.appendChild(new Option("Flytta till grupp…", ""));
+  groups.forEach(g => sel.appendChild(new Option(g.title, g.id)));
+  if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
+}
+function onGroupFilterChange() {
+  groupFilter = $("groupFilter").value;
+  render();
+}
+function matchGroup(i, filter) {
+  const gid = groupIdOf(i);
+  if (filter === "__inbox__") return !gid;
+  return gid === filter;
+}
+
+async function kickGroup() {
+  const id = $("groupFilter").value;
+  if (!id || id === "__inbox__") { toast("Välj en grupp först", true); return; }
+  const g = groups.find(x => x.id === id);
+  const label = g ? g.title : "gruppen";
+  if (!confirm(`Kicka alla godkända items i "${label}"? Kan inte ångras.`)) return;
+  try {
+    const res = await api("/groups/" + id + "/kick", "POST");
+    const n = (res && (res.kicked ?? res.count ?? res.total)) ?? 0;
+    toast(`${n} item(s) kickade i "${label}"`);
+    await load();
+  } catch (e) {
+    toast("Kunde inte kicka grupp", true);
+  }
+}
+function openKickAll() {
+  const approved = items.filter(i => {
+    if (i.status !== "approved") return false;
+    const s = ccStatusOf(i);
+    return !s || s === "failed";
+  }).length;
+  $("kickAllCount").textContent = approved;
+  $("kickAllDlg").showModal();
+}
+async function confirmKickAll() {
+  $("kickAllDlg").close();
+  try {
+    const res = await api("/kick-all", "POST");
+    const n = (res && (res.kicked ?? res.count ?? res.total)) ?? 0;
+    toast(`${n} item(s) kickade`);
+    await load();
+  } catch (e) {
+    toast("Kunde inte kicka allt", true);
+  }
+}
+
+// ── Multi-select + bulk-assign ──────────────────────────────────────────────
+function toggleSelect(id, checked) {
+  if (checked) selectedIds.add(id); else selectedIds.delete(id);
+  updateBulkBar();
+}
+function toggleSelectAll(checked) {
+  const q = $("search").value.trim().toLowerCase();
+  let rows = items.slice();
+  if (q) rows = rows.filter(i => (i.title || "").toLowerCase().includes(q));
+  if (groupFilter) rows = rows.filter(i => matchGroup(i, groupFilter));
+  if (checked) rows.forEach(i => selectedIds.add(i.id));
+  else rows.forEach(i => selectedIds.delete(i.id));
+  document.querySelectorAll("input.row-check").forEach(cb => cb.checked = checked);
+  updateBulkBar();
+}
+function updateBulkBar() {
+  const bar = $("bulkBar");
+  if (!bar) return;
+  if (selectedIds.size) {
+    bar.style.display = "flex";
+    $("bulkCount").textContent = selectedIds.size + " valda";
+  } else {
+    bar.style.display = "none";
+  }
+}
+function clearBulkSelect() {
+  selectedIds.clear();
+  document.querySelectorAll("input.row-check").forEach(cb => cb.checked = false);
+  const sel = $("selectAll"); if (sel) sel.checked = false;
+  updateBulkBar();
+}
+async function bulkAssign() {
+  const gid = $("bulkAssignGroup").value;
+  if (!gid) { toast("Välj grupp att flytta till", true); return; }
+  const ids = [...selectedIds];
+  if (!ids.length) return;
+  let ok = 0;
+  for (const id of ids) {
+    try { await api("/" + id + "/assign", "POST", { group_id: gid }); ok++; }
+    catch (e) { console.error("bulkAssign fail", id, e); }
+  }
+  const g = groups.find(x => x.id === gid);
+  toast(`${ok} item(s) flyttade till "${g ? g.title : gid}"`);
+  clearBulkSelect();
+  await load();
 }
 
 fillCats();
