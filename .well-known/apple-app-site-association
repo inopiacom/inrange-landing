@@ -6,7 +6,9 @@
         "components": [
           { "/": "/friends/accept*", "comment": "Friend invite deep links" },
           { "/": "/join*", "comment": "Follower to owner invite deep links (Pass 51)" },
-          { "/": "/signal/linked*", "comment": "Signal channel-link confirmed deep links (Pass 26)" }
+          { "/": "/signal/linked*", "comment": "Signal channel-link confirmed deep links (Pass 26)" },
+          { "/": "/l/*", "comment": "Care-link invitations (Spec C.7)" },
+          { "/": "/l", "comment": "Care-link invitations, trailing-slash-less form" }
         ]
       }
     ]
