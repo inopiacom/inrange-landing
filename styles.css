@@ -5,7 +5,9 @@
        --teal-mid    AppShell LaunchBackground.colorset (named colour)
        --teal-deep   AppIcon icon-1024.png, gradient bottom
        --mint        ColorTheme brandPrimary (light)
-       --lime        beta's body colour in the icon
+     beta's lime (#c2e828, her body colour in the icon) is deliberately not a
+     token: it only ever appears as an 8 % wash in .bg-gradient, and a named
+     token invites someone to put text on it later.
      The cream canvas stays: it is the app's own backgroundPrimary family
      (#FFF8F0), so warm paper + cool teal is what the product already does.
      Ink is cool-shifted off the old terracotta brown to sit with the teal. */
@@ -20,18 +22,18 @@
   --teal-mid: #1a7b81;
   --teal-deep: #0b505b;
   --mint: #7ed8b8;
-  --lime: #c2e828;
 
   --accent-1: var(--teal-mid);    /* primary CTA — 4.75:1 with #fff8f0 on top */
-  --accent-2: var(--teal-light);  /* gradient partner, decorative only */
   --accent-3: var(--teal-deep);   /* 8.37:1 on --bg-0 — safe for text */
 
   /* State colours are solid on purpose. A tinted wash over cream tops out
      around 1.1–1.6:1, which can decorate but can never carry meaning. */
   --state-ok: #0e7c6b;     /* 4.71:1 on --bg-0 */
   --state-error: #c0392b;  /* 5.01:1 on --bg-0 */
-  --gold: #8a6516;         /* 4.90:1 on --bg-0 — was #e9b04c at 1.80:1 */
-  --gold-glow: #e9b04c;    /* the bright gold survives as decoration only */
+  /* Gold is kept deliberately: it marks the Founders Pass as scarce, and that
+     is a different message from the brand teal. Darkened from the old #e9b04c,
+     which sat at 1.80:1 and could not be read as text at all. */
+  --gold: #8a6516;         /* 4.90:1 on --bg-0 */
 
   --on-teal: #fff8f0;      /* label ink for solid teal fills */
   --card-bg: rgba(255, 255, 255, 0.72);
