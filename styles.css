@@ -1,23 +1,45 @@
 :root {
-  /* Brand v2: warm & character-driven — cream, terracotta, monster mint */
+  /* Brand v3: turquoise. Every teal below is sampled pixel-exact from the
+     shipped iOS assets so web and app state the same thing:
+       --teal-light  AppIcon icon-1024.png, gradient top
+       --teal-mid    AppShell LaunchBackground.colorset (named colour)
+       --teal-deep   AppIcon icon-1024.png, gradient bottom
+       --mint        ColorTheme brandPrimary (light)
+       --lime        beta's body colour in the icon
+     The cream canvas stays: it is the app's own backgroundPrimary family
+     (#FFF8F0), so warm paper + cool teal is what the product already does.
+     Ink is cool-shifted off the old terracotta brown to sit with the teal. */
   --bg-0: #faf5ee;
-  --bg-1: #f4ece1;
-  --bg-2: #eee2d3;
-  --fg-0: #3a2e24;
-  --fg-1: #6b5d4f;
-  --fg-2: #98897a;
-  --accent-1: #e8804b;  /* terracotta — primary CTA */
-  --accent-2: #f2b380;  /* peach */
-  --accent-3: #2fae9c;  /* monster mint (signal) */
-  --warm-1: #e8804b;
-  --warm-2: #f2b380;
-  --gold: #e9b04c;
+  --bg-1: #f3efe8;
+  --bg-2: #e9e7e1;
+  --fg-0: #1c2a2d;  /* 13.65:1 on --bg-0 */
+  --fg-1: #42585a;  /*  6.98:1 on --bg-0 */
+  --fg-2: #5c7173;  /*  4.76:1 on --bg-0 — was #98897a at 3.13:1 (failed AA) */
+
+  --teal-light: #2aa7a7;
+  --teal-mid: #1a7b81;
+  --teal-deep: #0b505b;
+  --mint: #7ed8b8;
+  --lime: #c2e828;
+
+  --accent-1: var(--teal-mid);    /* primary CTA — 4.75:1 with #fff8f0 on top */
+  --accent-2: var(--teal-light);  /* gradient partner, decorative only */
+  --accent-3: var(--teal-deep);   /* 8.37:1 on --bg-0 — safe for text */
+
+  /* State colours are solid on purpose. A tinted wash over cream tops out
+     around 1.1–1.6:1, which can decorate but can never carry meaning. */
+  --state-ok: #0e7c6b;     /* 4.71:1 on --bg-0 */
+  --state-error: #c0392b;  /* 5.01:1 on --bg-0 */
+  --gold: #8a6516;         /* 4.90:1 on --bg-0 — was #e9b04c at 1.80:1 */
+  --gold-glow: #e9b04c;    /* the bright gold survives as decoration only */
+
+  --on-teal: #fff8f0;      /* label ink for solid teal fills */
   --card-bg: rgba(255, 255, 255, 0.72);
-  --card-border: rgba(58, 46, 36, 0.10);
+  --card-border: rgba(28, 42, 45, 0.18);
   --card-hover: rgba(255, 255, 255, 0.95);
   --radius-lg: 28px;
   --radius-md: 18px;
-  --shadow-glow: 0 12px 50px -12px rgba(232, 128, 75, 0.45);
+  --shadow-glow: 0 12px 50px -12px rgba(26, 123, 129, 0.40);
 }
 
 * {
@@ -57,9 +79,9 @@ body {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(1200px 800px at 15% -10%, rgba(242, 179, 128, 0.35), transparent 60%),
-    radial-gradient(900px 700px at 90% 10%, rgba(232, 128, 75, 0.18), transparent 60%),
-    radial-gradient(700px 500px at 50% 100%, rgba(255, 210, 168, 0.08), transparent 60%),
+    radial-gradient(1200px 800px at 15% -10%, rgba(126, 216, 184, 0.32), transparent 60%),
+    radial-gradient(900px 700px at 90% 10%, rgba(42, 167, 167, 0.18), transparent 60%),
+    radial-gradient(700px 500px at 50% 100%, rgba(194, 232, 40, 0.08), transparent 60%),
     linear-gradient(180deg, var(--bg-0), var(--bg-1) 50%, var(--bg-0));
   z-index: -2;
 }
@@ -76,13 +98,13 @@ body {
 }
 
 .bg-blob-1 {
-  background: var(--accent-1);
+  background: var(--teal-light);
   top: -100px;
   right: -80px;
 }
 
 .bg-blob-2 {
-  background: var(--warm-1);
+  background: var(--mint);
   bottom: -140px;
   left: -100px;
   opacity: 0.20;
@@ -116,12 +138,19 @@ body {
   font-size: 17px;
 }
 
-.brand-mark {
-  font-size: 22px;
-  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* The shipped wordmark SVG replaces the old ◐ glyph + text lockup.
+   deep-green (#00895B) is the sanctioned variant that survives the cream
+   canvas at 4.09:1 — past the 3:1 floor for graphical objects. The mint
+   variant is the app's brandPrimary but only reaches 1.56:1 here, so it is
+   kept for dark surfaces only (assets/inrange-wordmark-mint.svg). */
+.brand-logo {
+  display: block;
+  height: 32px;
+  width: auto;
+}
+
+.footer-brand .brand-logo {
+  height: 24px;
 }
 
 /* Buttons */
@@ -142,14 +171,16 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-  color: #fff8f0;
+  /* Runs deep -> mid, not mid -> light: --teal-light only reaches 2.78:1
+     against the label, so it must never end up under text. */
+  background: linear-gradient(135deg, var(--teal-deep), var(--teal-mid));
+  color: var(--on-teal);
   box-shadow: var(--shadow-glow);
 }
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 14px 60px -10px rgba(232, 128, 75, 0.55);
+  box-shadow: 0 14px 60px -10px rgba(26, 123, 129, 0.52);
 }
 
 .btn-ghost {
@@ -162,7 +193,7 @@ body {
 
 .btn-ghost:hover {
   background: var(--card-hover);
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(26, 123, 129, 0.32);
 }
 
 /* Pills */
@@ -180,8 +211,8 @@ body {
 
 .pill-gold {
   color: var(--gold);
-  border-color: rgba(255, 207, 122, 0.25);
-  background: rgba(255, 207, 122, 0.08);
+  border-color: rgba(138, 101, 22, 0.28);
+  background: rgba(233, 176, 76, 0.12);
 }
 
 /* Hero */
@@ -199,7 +230,9 @@ body {
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, var(--accent-1) 0%, #d96a35 55%, var(--accent-3) 100%);
+  /* Stays between 4.6:1 and 8.4:1 end to end — no stop drifts into the
+     pale teal, which would fail even the 3:1 large-text floor. */
+  background: linear-gradient(135deg, var(--teal-mid) 0%, #14666e 55%, var(--teal-deep) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -247,14 +280,14 @@ body {
 
 .card:hover {
   transform: translateY(-3px);
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(26, 123, 129, 0.32);
   background: var(--card-hover);
 }
 
 .card-icon {
   font-size: 30px;
   margin-bottom: 16px;
-  background: linear-gradient(135deg, var(--accent-1), var(--accent-3));
+  background: linear-gradient(135deg, var(--teal-mid), var(--teal-deep));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -282,9 +315,9 @@ body {
   margin: 0 auto;
   padding: 48px;
   background:
-    linear-gradient(135deg, rgba(255, 207, 122, 0.08), rgba(185, 140, 255, 0.05)),
+    linear-gradient(135deg, rgba(233, 176, 76, 0.10), rgba(126, 216, 184, 0.10)),
     var(--card-bg);
-  border: 1px solid rgba(255, 207, 122, 0.18);
+  border: 1px solid rgba(138, 101, 22, 0.22);
   border-radius: var(--radius-lg);
   text-align: center;
   backdrop-filter: blur(24px);
@@ -387,15 +420,17 @@ body {
   background: var(--card-hover);
 }
 
+/* Both states are solid 14px text, so both are held to the 4.5:1 body floor
+   rather than the old #2fae9c (2.53:1) and #ff8f8f (2.02:1). */
 .form-status {
   margin-top: 16px;
   min-height: 20px;
-  color: var(--accent-3);
+  color: var(--state-ok);
   font-size: 14px;
 }
 
 .form-status.error {
-  color: #ff8f8f;
+  color: var(--state-error);
 }
 
 /* FAQ */
@@ -424,7 +459,7 @@ details {
 }
 
 details[open] {
-  border-color: rgba(124, 156, 255, 0.3);
+  border-color: rgba(26, 123, 129, 0.35);
 }
 
 summary {
@@ -468,9 +503,9 @@ details p {
 
 .belief-inner {
   background:
-    linear-gradient(135deg, rgba(255, 177, 138, 0.10), rgba(143, 168, 255, 0.06)),
+    linear-gradient(135deg, rgba(126, 216, 184, 0.14), rgba(42, 167, 167, 0.07)),
     var(--card-bg);
-  border: 1px solid rgba(255, 177, 138, 0.24);
+  border: 1px solid rgba(26, 123, 129, 0.24);
   border-radius: var(--radius-lg);
   padding: 40px 44px;
   backdrop-filter: blur(14px);
@@ -487,7 +522,7 @@ details p {
 
 .belief-attrib {
   font-size: 14px;
-  color: var(--warm-2);
+  color: var(--teal-mid);  /* 4.62:1 — was #f2b380 at 1.68:1 */
   letter-spacing: 0.02em;
 }
 
@@ -531,15 +566,15 @@ details p {
 .chat-frame {
   width: 100%;
   max-width: 440px;
-  background: linear-gradient(180deg, rgba(255, 177, 138, 0.06), rgba(143, 168, 255, 0.04));
+  background: linear-gradient(180deg, rgba(126, 216, 184, 0.10), rgba(42, 167, 167, 0.05));
   border: 1px solid var(--card-border);
   border-radius: 28px;
   overflow: hidden;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   box-shadow:
-    0 30px 80px -20px rgba(0, 0, 0, 0.4),
-    0 4px 12px -4px rgba(255, 177, 138, 0.15);
+    0 30px 80px -20px rgba(11, 80, 91, 0.22),
+    0 4px 12px -4px rgba(26, 123, 129, 0.12);
 }
 
 .chat-topbar {
@@ -547,7 +582,7 @@ details p {
   align-items: center;
   gap: 12px;
   padding: 14px 18px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.55);
   border-bottom: 1px solid var(--card-border);
 }
 
@@ -558,8 +593,8 @@ details p {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--warm-1), var(--accent-2));
-  color: #1a1a1a;
+  background: linear-gradient(135deg, var(--teal-deep), var(--teal-mid));
+  color: var(--on-teal);
   font-weight: 800;
   font-size: 16px;
 }
@@ -606,24 +641,27 @@ details p {
   word-wrap: break-word;
 }
 
+/* These two were carrying dark-theme values: a 7% white fill and a 8% white
+   border are invisible on cream, so the coach bubbles had no shape at all.
+   Both now use real surfaces with borders that actually register. */
 .bubble-coach {
   align-self: flex-start;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid var(--card-border);
   border-bottom-left-radius: 6px;
 }
 
 .bubble-user {
   align-self: flex-end;
-  background: linear-gradient(135deg, rgba(143, 168, 255, 0.38), rgba(143, 168, 255, 0.28));
-  border: 1px solid rgba(143, 168, 255, 0.35);
+  background: linear-gradient(135deg, rgba(126, 216, 184, 0.42), rgba(126, 216, 184, 0.28));
+  border: 1px solid rgba(26, 123, 129, 0.30);
   border-bottom-right-radius: 6px;
 }
 
 .chat-typing {
   align-self: flex-start;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid var(--card-border);
   border-radius: 18px;
   border-bottom-left-radius: 6px;
   padding: 10px 14px;
@@ -738,7 +776,7 @@ details p {
   width: 200px;
   height: 200px;
   margin: 0 auto 18px;
-  filter: drop-shadow(0 18px 30px rgba(58, 46, 36, 0.25));
+  filter: drop-shadow(0 18px 30px rgba(11, 80, 91, 0.28));
 }
 @media (max-width: 640px) {
   .hero-monster { width: 150px; height: 150px; }
