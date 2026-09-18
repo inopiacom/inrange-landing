@@ -9,14 +9,15 @@
   <link rel="stylesheet" href="../styles.css" />
   <style>
     .accept-wrap { max-width: 520px; margin: 0 auto; padding: 48px 20px 96px; text-align: center; }
-    .accept-glyph { font-size: 56px; line-height: 1; }
+    .accept-glyph { line-height: 1; }
+    .accept-glyph img { height: 42px; width: auto; }
     .accept-lead { opacity: 0.72; font-size: 16px; line-height: 1.55; margin: 8px auto 0; max-width: 380px; }
 
     /* Pass 88 (Jonas 2026-08-23): numbered step-card som primärt visuellt språk
        — user missförstod tidigare vilken knapp att tappa. Nu explicit 1 → 2. */
     .step-card {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.10);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
       border-radius: 22px;
       padding: 24px 22px;
       margin-top: 20px;
@@ -24,11 +25,11 @@
       backdrop-filter: blur(14px);
       position: relative;
     }
-    .step-card.primary { border-color: rgba(63,224,208,0.35); box-shadow: 0 0 0 1px rgba(63,224,208,0.25) inset; }
+    .step-card.primary { border-color: var(--teal-mid); box-shadow: 0 0 0 1px rgba(26,123,129,0.30) inset; }
     .step-num {
       display: inline-flex; align-items: center; justify-content: center;
       width: 28px; height: 28px; border-radius: 14px;
-      background: rgba(63,224,208,0.15); color: #3fe0d0;
+      background: rgba(126,216,184,0.28); color: var(--teal-deep);
       font-weight: 700; font-size: 15px;
       margin-right: 10px; vertical-align: middle;
     }
@@ -36,29 +37,29 @@
     .step-body { font-size: 14.5px; line-height: 1.55; opacity: 0.82; margin: 12px 0 16px; }
     .step-cta {
       display: block; width: 100%; box-sizing: border-box;
-      background: #3fe0d0; color: #000; font-weight: 700; font-size: 17px;
+      background: linear-gradient(135deg, var(--teal-deep), var(--teal-mid)); color: var(--on-teal); font-weight: 700; font-size: 17px;
       padding: 15px 24px; border-radius: 28px; text-decoration: none;
       text-align: center;
     }
-    .step-cta.secondary { background: rgba(255,255,255,0.10); color: #fff; }
+    .step-cta.secondary { background: #fff; color: var(--fg-0); border: 1px solid var(--card-border); }
     .step-cta:active { opacity: 0.88; }
 
     .store-badge { display: block; width: 100%; text-align: center; margin: 4px 0 0; }
     .store-badge-svg { height: 48px; width: 144px; display: inline-block; }
-    .store-badge:focus-visible { outline: 2px solid #3fe0d0; outline-offset: 3px; border-radius: 9px; }
+    .store-badge:focus-visible { outline: 2px solid var(--teal-mid); outline-offset: 3px; border-radius: 9px; }
     .store-badge:active .store-badge-svg { opacity: 0.85; }
 
     .code-block { margin-top: 24px; }
     .code-line {
       font-family: ui-monospace, Menlo, monospace; font-size: 15px;
-      background: rgba(0,0,0,0.35); border-radius: 10px;
+      background: #fff; border: 1px solid var(--card-border); border-radius: 10px;
       padding: 10px 14px; word-break: break-all; margin: 10px 0 12px;
     }
     .copy-btn {
-      background: rgba(255,255,255,0.12); color: #fff; border: none; border-radius: 18px;
+      background: #fff; color: var(--fg-0); border: 1px solid var(--card-border); border-radius: 18px;
       padding: 9px 22px; font-size: 14px; cursor: pointer;
     }
-    .copy-btn:active { background: rgba(255,255,255,0.22); }
+    .copy-btn:active { background: var(--bg-2); }
 
     .hidden { display: none; }
     .accept-muted { opacity: 0.62; font-size: 13.5px; line-height: 1.5; }
@@ -67,7 +68,7 @@
 </head>
 <body>
   <main class="accept-wrap">
-    <div class="accept-glyph">◐</div>
+    <div class="accept-glyph"><img src="../assets/inrange-wordmark.svg" alt="InRange AI" /></div>
     <h1 style="margin-top:12px;">You're invited</h1>
     <p class="accept-lead">
       Someone wants you on their <strong>InRange Cheer Team</strong> — you'll see their milestones and can cheer them on.
@@ -129,7 +130,7 @@
     </div>
 
     <p class="accept-muted footer-note">
-      <a href="../" style="color:#3fe0d0;">getinrange.ai</a> · InRange is a wellness companion, not a medical device.
+      <a href="../" style="color:var(--teal-mid);">getinrange.ai</a> · InRange is a wellness companion, not a medical device.
     </p>
   </main>
 
