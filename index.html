@@ -23,6 +23,26 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- Kortikonerna delar en gradient. Den kan inte bo i CSS: background-clip
+       maskar text, inte SVG-streck, sa stroke maste peka pa en riktig
+       <linearGradient>. Stoppen ar --teal-light och --teal-deep ur styles.css.
+
+       gradientUnits="userSpaceOnUse" ar inte en stilfraga. Default ar
+       objectBoundingBox, och da normaliseras gradienten mot varje elements
+       egen bbox - en exakt lodrat linje som groddens stjalk (M14 26V11) far
+       bredd 0, gradienten blir degenererad och SVG-specen sager att elementet
+       inte ska ritas alls. Stjalken forsvann tyst. Koordinaterna nedan spanner
+       hela viewBoxen, sa alla tre ikoner delar dessutom samma ramp i stallet
+       for att var och en kora hela vagen fran ljus till mork. -->
+  <svg width="0" height="0" aria-hidden="true" focusable="false" style="position: absolute">
+    <defs>
+      <linearGradient id="icon-grad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="28" y2="28">
+        <stop offset="0%" stop-color="#2aa7a7" />
+        <stop offset="100%" stop-color="#0b505b" />
+      </linearGradient>
+    </defs>
+  </svg>
+
   <div class="bg-gradient"></div>
   <div class="bg-blob bg-blob-1"></div>
   <div class="bg-blob bg-blob-2"></div>
@@ -53,7 +73,11 @@
 
     <section class="values container">
       <div class="card">
-        <div class="card-icon">◐</div>
+        <svg class="card-icon" viewBox="0 0 28 28" width="30" height="30" fill="none" stroke="url(#icon-grad)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 26V11" />
+          <path d="M14 17.5C8.8 17.5 4.5 13.2 4.5 8 9.7 8 14 12.3 14 17.5Z" />
+          <path d="M14 13.5C14 8.3 18.3 4 23.5 4 23.5 9.2 19.2 13.5 14 13.5Z" />
+        </svg>
         <h3>Coaching, not alarms</h3>
         <p>
           Nudges when they help. Encouragement when you earn it. Silence when you need it.
@@ -62,7 +86,12 @@
         </p>
       </div>
       <div class="card">
-        <div class="card-icon">◑</div>
+        <svg class="card-icon" viewBox="0 0 28 28" width="30" height="30" fill="none" stroke="url(#icon-grad)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6.5 3.5h15A3 3 0 0 1 24.5 6.5v8A3 3 0 0 1 21.5 17.5H12l-5.5 4.5V17.5A3 3 0 0 1 3.5 14.5v-8A3 3 0 0 1 6.5 3.5Z" />
+          <circle cx="9.6" cy="10.5" r="1.2" fill="url(#icon-grad)" stroke="none" />
+          <circle cx="14" cy="10.5" r="1.2" fill="url(#icon-grad)" stroke="none" />
+          <circle cx="18.4" cy="10.5" r="1.2" fill="url(#icon-grad)" stroke="none" />
+        </svg>
         <h3>Right in your chat app</h3>
         <p>
           No new app to open when you're already tired. Talk to your coach in Signal or
@@ -71,7 +100,12 @@
         </p>
       </div>
       <div class="card">
-        <div class="card-icon">◒</div>
+        <svg class="card-icon" viewBox="0 0 28 28" width="30" height="30" fill="none" stroke="url(#icon-grad)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="18" r="6" />
+          <circle cx="11" cy="18" r="1.9" fill="url(#icon-grad)" stroke="none" />
+          <path d="M14.15 9.35A9.2 9.2 0 0 1 19.65 14.85" />
+          <path d="M15.24 6.35A12.4 12.4 0 0 1 22.65 13.76" />
+        </svg>
         <h3>Works with your CGM</h3>
         <p>
           Dexcom, FreeStyle Libre, Medtrum, Eversense — or nothing at all. Fingerstick
@@ -103,7 +137,7 @@
       <div class="chat-window" aria-label="Preview conversation with your InRange coach">
         <div class="chat-frame">
           <div class="chat-topbar">
-            <span class="chat-avatar" aria-hidden="true">◐</span>
+            <span class="chat-avatar" aria-hidden="true"><img src="assets/monster-steady.png" alt="" /></span>
             <div class="chat-topbar-title">
               <strong>InRange Coach</strong>
               <span class="chat-topbar-sub">online</span>
