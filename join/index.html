@@ -10,12 +10,12 @@
   <style>
     .join-wrap { max-width: 480px; margin: 0 auto; padding: 64px 24px; text-align: center; }
     .join-glyph { font-size: 56px; line-height: 1; }
-    .join-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    .join-card { background: var(--card-bg); border: 1px solid var(--card-border);
                  border-radius: 20px; padding: 28px 24px; margin-top: 28px; backdrop-filter: blur(12px); }
-    .join-cta { display: inline-block; background: #3fe0d0; color: #000; font-weight: 700;
+    .join-cta { display: inline-block; background: linear-gradient(135deg, var(--teal-deep), var(--teal-mid)); color: var(--on-teal); font-weight: 700;
                 font-size: 17px; padding: 15px 36px; border-radius: 28px; text-decoration: none; margin-top: 8px; }
-    .join-muted { opacity: 0.65; font-size: 14px; line-height: 1.5; }
-    .join-steps { text-align: left; opacity: 0.8; font-size: 14px; line-height: 1.7; margin: 8px 0 0; padding-left: 20px; }
+    .join-muted { color: var(--fg-1); font-size: 14px; line-height: 1.5; }
+    .join-steps { text-align: left; color: var(--fg-1); font-size: 14px; line-height: 1.7; margin: 8px 0 0; padding-left: 20px; }
     .hidden { display: none; }
   </style>
 </head>
@@ -43,7 +43,7 @@
     </div>
 
     <p class="join-muted" style="margin-top:28px;">
-      <a href="../" style="color:#3fe0d0;">getinrange.ai</a> · InRange is a wellness companion, not a medical device.
+      <a href="../" style="color:var(--teal-mid);">getinrange.ai</a> · InRange is a wellness companion, not a medical device.
     </p>
   </main>
 
