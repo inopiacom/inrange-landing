@@ -2,6 +2,10 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://getinrange.ai/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://getinrange.ai/privacy.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://getinrange.ai/privacy-sv.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://getinrange.ai/privacy-es.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://getinrange.ai/privacy-de.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://getinrange.ai/privacy-fr.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://getinrange.ai/privacy-tr.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://getinrange.ai/terms.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://getinrange.ai/security.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
