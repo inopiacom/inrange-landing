@@ -8,5 +8,10 @@
   <url><loc>https://getinrange.ai/privacy-fr.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://getinrange.ai/privacy-tr.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://getinrange.ai/terms.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://getinrange.ai/terms-sv.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://getinrange.ai/terms-es.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://getinrange.ai/terms-de.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://getinrange.ai/terms-fr.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://getinrange.ai/terms-tr.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://getinrange.ai/security.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
 </urlset>
