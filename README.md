@@ -1,6 +1,6 @@
 # inrange-landing
 
-Static landing page for **InRange AI** — served from `https://getinrange.ai` (and `https://getinrange.com` → 301 redirect to `.ai`).
+Static landing page for **inRange AI** — served from `https://getinrange.ai` (and `https://getinrange.com` → 301 redirect to `.ai`).
 
 ## Structure
 
