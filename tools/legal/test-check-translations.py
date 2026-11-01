@@ -139,7 +139,7 @@ CASES = [
     ),
     (
         "datumraden i sidhuvudet avviker från engelskans",
-        lambda r: edit(r, "privacy-sv.html", lambda t: t.replace("Gäller från: 2026-09-22", "Gäller från: 2026-09-15", 1)),
+        lambda r: edit(r, "privacy-sv.html", lambda t: re.sub(r"Gäller från: \d{4}-\d{2}-\d{2}", "Gäller från: 1999-01-01", t, count=1)),
         "privacy-sv.html", "version",
     ),
 ]

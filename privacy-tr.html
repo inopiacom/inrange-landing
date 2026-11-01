@@ -27,10 +27,10 @@
 
   <main class="container" style="max-width:780px;padding:60px 24px 100px">
     <h1 style="font-size:40px;font-weight:800;letter-spacing:-0.02em;margin-bottom:12px">Gizlilik Politikası</h1>
-    <p style="color:var(--fg-2);margin-bottom:8px">Son güncelleme: 2026-09-22</p>
-    <p style="color:var(--fg-2);margin-bottom:8px">Yürürlük tarihi: 2026-09-22</p>
+    <p style="color:var(--fg-2);margin-bottom:8px">Son güncelleme: 2026-11-01</p>
+    <p style="color:var(--fg-2);margin-bottom:8px">Yürürlük tarihi: 2026-11-01</p>
     <nav aria-label="Dil" style="color:var(--fg-2);margin-bottom:16px;line-height:1.9">Dil: <a href="privacy.html" hreflang="en" lang="en" style="color:var(--accent-1)">English</a> · <a href="privacy-sv.html" hreflang="sv" lang="sv" style="color:var(--accent-1)">Svenska</a> · <a href="privacy-es.html" hreflang="es" lang="es" style="color:var(--accent-1)">Español</a> · <a href="privacy-de.html" hreflang="de" lang="de" style="color:var(--accent-1)">Deutsch</a> · <a href="privacy-fr.html" hreflang="fr" lang="fr" style="color:var(--accent-1)">Français</a> · <strong style="color:var(--fg-1)">Türkçe</strong></nav>
-    <p style="color:var(--fg-2);margin-bottom:40px;padding:14px 16px;border-left:3px solid var(--accent-1);line-height:1.6">Bu sayfa, İngilizce gizlilik politikasının <strong>2026-09-22</strong> sürümünün çevirisidir. <a href="privacy.html" hreflang="en" lang="en" style="color:var(--accent-1)">İngilizce orijinali okuyun</a>. Bu çevirinin İngilizce sürümden farklı olduğunu düşünüyorsanız <a href="mailto:privacy@getinrange.ai" style="color:var(--accent-1)">privacy@getinrange.ai</a> adresinden bize bildirin; düzeltiriz.</p>
+    <p style="color:var(--fg-2);margin-bottom:40px;padding:14px 16px;border-left:3px solid var(--accent-1);line-height:1.6">Bu sayfa, İngilizce gizlilik politikasının <strong>2026-11-01</strong> sürümünün çevirisidir. <a href="privacy.html" hreflang="en" lang="en" style="color:var(--accent-1)">İngilizce orijinali okuyun</a>. Bu çevirinin İngilizce sürümden farklı olduğunu düşünüyorsanız <a href="mailto:privacy@getinrange.ai" style="color:var(--accent-1)">privacy@getinrange.ai</a> adresinden bize bildirin; düzeltiriz.</p>
 
     <section style="color:var(--fg-1);line-height:1.7">
 
@@ -86,9 +86,14 @@
         <li><strong>OpenAI</strong> — sesli mesajların metne çevrilmesi (Whisper) ve kişisel yapay zekâ avatarınızın oluşturulması için kullanılır. Girdiler, kötüye kullanım denetimi için OpenAI tarafından 30 gün boyunca saklanır ve ardından silinir. OpenAI’nin koşulları API verileri üzerinde eğitim yapılmasını yasaklar.</li>
         <li><strong>Fly.io</strong> — Stockholm, İsveç’teki altyapı sağlayıcımız. Fly.io verileri yalnızca sunucuları çalıştırmak için işler.</li>
         <li><strong>Signal veya Telegram</strong> — <em>yalnızca bunları koçluk kanalınız olarak seçerseniz.</em> Mesajlar bu durumda Signal’in veya Telegram’ın ağı üzerinden, ilgili gizlilik politikalarına göre iletilir. Signal uçtan uca şifrelidir; Telegram ise iletim (transport) düzeyinde şifrelidir.</li>
+        <li><strong>Sentry</strong> — iOS uygulaması için çökme ve performans tanılama. Bir olay; uygulama sürümünü, cihaz modelini ve çağrı yığınını taşır. Sentry SDK’sını <code>sendDefaultPii</code> kapalı olarak çalıştırırız; böylece olay ne kullanıcı kimliğinizi ne de e-posta adresinizi taşır ve Sentry’ye asla sağlık verisi göndermeyiz.</li>
         <li><strong>Ödeme ve vergi kayıtları</strong> — Apple satış raporları sağlar; bunları yasal vergi ve muhasebe süreleri boyunca saklarız.</li>
       </ul>
       <p>Verilerinizi satmayız. Bu veri işleyenlere verilerinizi kendi amaçları için kullanma yetkisi vermeyiz.</p>
+
+      <p><strong>Davet ettiğiniz kişilerle paylaşım.</strong> Yukarıdaki veri işleyenlerden ayrı olarak inRange, bir kişiyi — eşinizi, bir ebeveyninizi, bir arkadaşınızı — bir bakım bağlantısı (care link) ile sizi takip etmeye davet etmenize izin verir. Davet edilen bir takipçi, glukoz değerlerinizi ve koç konuşmalarınızı okuyabilir. Bu kişinin yazdığı bir tezahürat, kendi sözleriyle uygulama içinde size ulaşır. Bir öğün meydan okumasına eklediğiniz fotoğraf sunucularımızda saklanır ve o meydan okumaya katılan her iki katılımcı tarafından da görülebilir. Bu, bir veri işleyenle değil, bir insanla paylaşımdır ve daveti siz göndermedikçe bunların hiçbiri gerçekleşmez.</p>
+
+      <p>Davet kodu tek kullanımlıktır ve oluşturulmasından 72 saat sonra geçerliliğini yitirir. Bir takipçinin erişimini uygulama içinde her an geri alabilirsiniz; bu, verilerinizi okuma olanağını derhal sona erdirir. Bu paylaşımı rızanıza dayandırır ve kabul ettiğiniz paylaşım rızasının sürümünü kayıt altına alırız; böylece neye ve ne zaman izin verdiğiniz her zaman belgelidir.</p>
 
       <h2 style="font-size:24px;font-weight:700;margin-top:40px;margin-bottom:16px">5. Verilerinizin bulunduğu yer</h2>
       <p>Hesap ve sağlık verileriniz Avrupa Birliği’nde saklanır (Fly.io bölgesi <code>arn</code>, Stockholm, İsveç). Veriler iletim sırasında (TLS 1.2+) ve saklanırken (AES-256) şifrelenir. Felaket kurtarma için kısa ömürlü veritabanı yedeklerini (30 gün boyunca saklanan) kullanırız.</p>

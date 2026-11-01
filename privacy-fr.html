@@ -27,10 +27,10 @@
 
   <main class="container" style="max-width:780px;padding:60px 24px 100px">
     <h1 style="font-size:40px;font-weight:800;letter-spacing:-0.02em;margin-bottom:12px">Politique de confidentialité</h1>
-    <p style="color:var(--fg-2);margin-bottom:8px">Dernière mise à jour : 2026-09-22</p>
-    <p style="color:var(--fg-2);margin-bottom:8px">Date d’entrée en vigueur : 2026-09-22</p>
+    <p style="color:var(--fg-2);margin-bottom:8px">Dernière mise à jour : 2026-11-01</p>
+    <p style="color:var(--fg-2);margin-bottom:8px">Date d’entrée en vigueur : 2026-11-01</p>
     <nav aria-label="Langue" style="color:var(--fg-2);margin-bottom:16px;line-height:1.9">Langue : <a href="privacy.html" hreflang="en" lang="en" style="color:var(--accent-1)">English</a> · <a href="privacy-sv.html" hreflang="sv" lang="sv" style="color:var(--accent-1)">Svenska</a> · <a href="privacy-es.html" hreflang="es" lang="es" style="color:var(--accent-1)">Español</a> · <a href="privacy-de.html" hreflang="de" lang="de" style="color:var(--accent-1)">Deutsch</a> · <strong style="color:var(--fg-1)">Français</strong> · <a href="privacy-tr.html" hreflang="tr" lang="tr" style="color:var(--accent-1)">Türkçe</a></nav>
-    <p style="color:var(--fg-2);margin-bottom:40px;padding:14px 16px;border-left:3px solid var(--accent-1);line-height:1.6">Cette page est une traduction de la politique de confidentialité en anglais, version <strong>2026-09-22</strong>. <a href="privacy.html" hreflang="en" lang="en" style="color:var(--accent-1)">Lisez l’original en anglais</a>. Si vous estimez que cette traduction diffère de la version anglaise, signalez-le-nous à <a href="mailto:privacy@getinrange.ai" style="color:var(--accent-1)">privacy@getinrange.ai</a> et nous la corrigerons.</p>
+    <p style="color:var(--fg-2);margin-bottom:40px;padding:14px 16px;border-left:3px solid var(--accent-1);line-height:1.6">Cette page est une traduction de la politique de confidentialité en anglais, version <strong>2026-11-01</strong>. <a href="privacy.html" hreflang="en" lang="en" style="color:var(--accent-1)">Lisez l’original en anglais</a>. Si vous estimez que cette traduction diffère de la version anglaise, signalez-le-nous à <a href="mailto:privacy@getinrange.ai" style="color:var(--accent-1)">privacy@getinrange.ai</a> et nous la corrigerons.</p>
 
     <section style="color:var(--fg-1);line-height:1.7">
 
@@ -86,9 +86,14 @@
         <li><strong>OpenAI</strong> — utilisé pour la transcription vocale (Whisper) et la génération de votre avatar IA personnel. Les entrées sont conservées par OpenAI pendant 30 jours pour la surveillance des abus, puis supprimées. Les conditions d’OpenAI interdisent l’entraînement sur les données de l’API.</li>
         <li><strong>Fly.io</strong> — notre hébergeur d’infrastructure à Stockholm, en Suède. Fly.io ne traite les données que pour faire fonctionner les serveurs.</li>
         <li><strong>Signal ou Telegram</strong> — <em>uniquement si vous les choisissez comme canal de coaching.</em> Les messages transitent alors par le réseau de Signal ou de Telegram selon leurs politiques de confidentialité respectives. Signal est chiffré de bout en bout&nbsp;; Telegram est chiffré au niveau du transport.</li>
+        <li><strong>Sentry</strong> — diagnostic des plantages et des performances de l’application iOS. Un événement contient la version de l’application, le modèle d’appareil et la pile d’appels. Nous exécutons le SDK Sentry avec <code>sendDefaultPii</code> désactivé&nbsp;: l’événement ne contient donc ni votre identifiant utilisateur ni votre adresse e-mail, et nous n’envoyons jamais de données de santé à Sentry.</li>
         <li><strong>Documents de paiement et fiscaux</strong> — Apple fournit des rapports de ventes&nbsp;; nous les conservons pendant les durées fiscales et comptables légales.</li>
       </ul>
       <p>Nous ne vendons pas vos données. Nous n’autorisons pas ces sous-traitants à utiliser vos données à leurs propres fins.</p>
+
+      <p><strong>Partage avec les personnes que vous invitez.</strong> Indépendamment des sous-traitants ci-dessus, inRange vous permet d’inviter une personne — votre conjoint, un parent, un ami — à vous suivre au moyen d’un lien d’accompagnement (care link). Un abonné invité peut lire vos valeurs de glucose et vos conversations avec le coach. Un encouragement qu’il rédige vous parvient dans l’application, avec ses propres mots. Une photo que vous joignez à un défi repas est stockée sur nos serveurs et visible pour les deux participants de ce défi. Il s’agit d’un partage avec un être humain, et non avec un sous-traitant&nbsp;; rien de tout cela ne se produit si vous n’envoyez pas l’invitation.</p>
+
+      <p>Un code d’invitation est à usage unique et expire 72 heures après sa création. Vous pouvez révoquer l’accès d’un abonné à tout moment dans l’application, ce qui met immédiatement fin à sa possibilité de lire vos données. Nous fondons ce partage sur votre consentement et conservons la version du consentement de partage que vous avez acceptée, afin qu’il soit toujours établi ce que vous avez autorisé et quand.</p>
 
       <h2 style="font-size:24px;font-weight:700;margin-top:40px;margin-bottom:16px">5. Où vos données sont hébergées</h2>
       <p>Les données de votre compte et vos données de santé sont stockées dans l’Union européenne (région Fly.io <code>arn</code>, Stockholm, Suède). Les données sont chiffrées en transit (TLS 1.2+) et au repos (AES-256). Nous utilisons des sauvegardes de base de données de courte durée (conservées 30 jours) pour la reprise après sinistre.</p>

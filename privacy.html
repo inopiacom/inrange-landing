@@ -27,8 +27,8 @@
 
   <main class="container" style="max-width:780px;padding:60px 24px 100px">
     <h1 style="font-size:40px;font-weight:800;letter-spacing:-0.02em;margin-bottom:12px">Privacy Policy</h1>
-    <p style="color:var(--fg-2);margin-bottom:8px">Last updated: 2026-09-22</p>
-    <p style="color:var(--fg-2);margin-bottom:8px">Effective: 2026-09-22</p>
+    <p style="color:var(--fg-2);margin-bottom:8px">Last updated: 2026-11-01</p>
+    <p style="color:var(--fg-2);margin-bottom:8px">Effective: 2026-11-01</p>
     <nav aria-label="Language" style="color:var(--fg-2);margin-bottom:40px;line-height:1.9">Language: <strong style="color:var(--fg-1)">English</strong> · <a href="privacy-sv.html" hreflang="sv" lang="sv" style="color:var(--accent-1)">Svenska</a> · <a href="privacy-es.html" hreflang="es" lang="es" style="color:var(--accent-1)">Español</a> · <a href="privacy-de.html" hreflang="de" lang="de" style="color:var(--accent-1)">Deutsch</a> · <a href="privacy-fr.html" hreflang="fr" lang="fr" style="color:var(--accent-1)">Français</a> · <a href="privacy-tr.html" hreflang="tr" lang="tr" style="color:var(--accent-1)">Türkçe</a></nav>
 
     <section style="color:var(--fg-1);line-height:1.7">
@@ -85,9 +85,14 @@
         <li><strong>OpenAI</strong> — used for voice transcription (Whisper) and for generating your personal AI-avatar. Input is retained by OpenAI for 30 days for abuse monitoring, then deleted. OpenAI’s terms prohibit training on API data.</li>
         <li><strong>Fly.io</strong> — our infrastructure host in Stockholm, Sweden. Fly.io processes data only to operate the servers.</li>
         <li><strong>Signal or Telegram</strong> — <em>only if you choose them as your coaching channel.</em> Messages then travel over Signal’s or Telegram’s network according to their respective privacy policies. Signal is end-to-end encrypted; Telegram is transport-encrypted.</li>
+        <li><strong>Sentry</strong> — crash and performance diagnostics for the iOS app. An event carries the app version, the device model, and the stack trace. We run the Sentry SDK with <code>sendDefaultPii</code> switched off, so an event does not carry your user id or your email address, and we never send health data to Sentry.</li>
         <li><strong>Payment and tax records</strong> — Apple provides sales reports; we retain those for statutory tax and accounting periods.</li>
       </ul>
       <p>We do not sell your data. We do not authorise these processors to use your data for their own purposes.</p>
+
+      <p><strong>Sharing with people you invite.</strong> Separately from the processors above, inRange lets you invite a person — a partner, a parent, a friend — to follow you, using a care link. An invited follower can read your glucose values and your coach threads. A cheer they write reaches you inside the app in their own words. A photo you attach to a meal challenge is stored on our servers and is visible to both participants of that challenge. This is sharing with a human being, not with a processor, and none of it happens unless you send the invitation.</p>
+
+      <p>An invitation code is single-use and expires 72 hours after you create it. You can revoke a follower’s access at any time in the app, which immediately ends their ability to read your data. We rely on your consent for this sharing and record the version of the sharing consent you accepted, so it is always on record what you granted and when.</p>
 
       <h2 style="font-size:24px;font-weight:700;margin-top:40px;margin-bottom:16px">5. Where your data lives</h2>
       <p>Your account and health data are stored in the European Union (Fly.io region <code>arn</code>, Stockholm, Sweden). Data is encrypted in transit (TLS 1.2+) and at rest (AES-256). We use short-lived database backups (retained for 30 days) for disaster recovery.</p>
