@@ -58,6 +58,7 @@
   .b-reject { background: var(--red); color: #fff; }
   .b-impl { background: var(--blue); color: var(--bg); }
   .muted { color: var(--muted); }
+  .selfheal-tag { display:inline-block; margin-left:6px; padding:1px 6px; border-radius:8px; font-size:12px; font-weight:700; background:var(--card); border:1px solid var(--mint); color:var(--mint); white-space:nowrap; }
   .empty { text-align: center; color: var(--muted); padding: 60px 20px; }
   dialog { background: var(--card); color: var(--ink); border: 1px solid var(--line);
     border-radius: 12px; padding: 18px; max-width: 420px; width: 90%; }
@@ -480,7 +481,7 @@ function rowEl(i) {
     <td class="kind">${KIND_ICON[i.kind] || "•"}</td>
     <td class="hide-sm">${i.mode || ""}</td>
     <td class="hide-sm">${i.category || ""}</td>
-    <td>${escapeHtml(i.title || "")}</td>
+    <td>${escapeHtml(i.title || "")}${renderSelfHealTag(i)}</td>
     <td class="hide-sm muted">${maskUser(i.user_id)}</td>
     <td><span class="status s-${i.status}">${i.status}</span></td>
     <td>${renderLayerBadge(i)}</td>
@@ -488,6 +489,29 @@ function rowEl(i) {
     <td>${renderKickBtn(i)}</td>`;
   tr.onclick = () => toggleDetail(tr, i);
   return tr;
+}
+
+// B-0017: maskinrapporterade självläkningsrader. Backend lägger vendor och
+// inlärd version i structured_context och räknar upp occurrence_count när
+// fler enheter träffar samma orsak (dedupe_key). Utan märket syns bara titeln
+// och uppräkningen är osynlig i triagen.
+function selfHealInfo(i) {
+  if (!i || !i.dedupe_key) return null;
+  let ctx = null;
+  try { ctx = i.structured_context ? JSON.parse(i.structured_context) : null; } catch (e) { ctx = null; }
+  const vendor = ctx && ctx.vendor ? String(ctx.vendor) : "";
+  const learned = ctx && ctx.learned_version ? String(ctx.learned_version) : "";
+  const n = Number.isFinite(Number(i.occurrence_count)) && Number(i.occurrence_count) > 0 ? Number(i.occurrence_count) : 1;
+  return { vendor, learned, n };
+}
+function renderSelfHealTag(i) {
+  const h = selfHealInfo(i);
+  if (!h) return "";
+  const what = [h.vendor, h.learned].filter(Boolean).join(" ");
+  const label = (what ? what + " · " : "") + "×" + h.n;
+  const tip = "Självläkning" + (h.vendor ? " · vendor " + h.vendor : "") +
+    (h.learned ? " · inlärd version " + h.learned : "") + " · " + h.n + (h.n === 1 ? " enhet" : " enheter");
+  return ` <span class="selfheal-tag" title="${escapeAttr(tip)}">🩹 ${escapeHtml(label)}</span>`;
 }
 
 function toggleDetail(tr, i) {
