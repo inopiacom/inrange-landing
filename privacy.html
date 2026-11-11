@@ -27,8 +27,8 @@
 
   <main class="container" style="max-width:780px;padding:60px 24px 100px">
     <h1 style="font-size:40px;font-weight:800;letter-spacing:-0.02em;margin-bottom:12px">Privacy Policy</h1>
-    <p style="color:var(--fg-2);margin-bottom:8px">Last updated: 2026-11-01</p>
-    <p style="color:var(--fg-2);margin-bottom:8px">Effective: 2026-11-01</p>
+    <p style="color:var(--fg-2);margin-bottom:8px">Last updated: 2026-11-11</p>
+    <p style="color:var(--fg-2);margin-bottom:8px">Effective: 2026-11-11</p>
     <nav aria-label="Language" style="color:var(--fg-2);margin-bottom:40px;line-height:1.9">Language: <strong style="color:var(--fg-1)">English</strong> · <a href="privacy-sv.html" hreflang="sv" lang="sv" style="color:var(--accent-1)">Svenska</a> · <a href="privacy-es.html" hreflang="es" lang="es" style="color:var(--accent-1)">Español</a> · <a href="privacy-de.html" hreflang="de" lang="de" style="color:var(--accent-1)">Deutsch</a> · <a href="privacy-fr.html" hreflang="fr" lang="fr" style="color:var(--accent-1)">Français</a> · <a href="privacy-tr.html" hreflang="tr" lang="tr" style="color:var(--accent-1)">Türkçe</a></nav>
 
     <section style="color:var(--fg-1);line-height:1.7">
@@ -81,13 +81,14 @@
       <p>We share the minimum amount of data needed with the following processors:</p>
       <ul style="margin-left:24px">
         <li><strong>Apple</strong> — Sign in with Apple, StoreKit purchases, HealthKit permissions, push notifications. Governed by Apple’s privacy terms.</li>
-        <li><strong>Anthropic (Claude)</strong> — the language model that powers coach responses. Conversation context is sent per request. Anthropic’s enterprise terms prohibit training on this data and require deletion of inputs within 30 days.</li>
-        <li><strong>OpenAI</strong> — used for voice transcription (Whisper) and for generating your personal AI-avatar. Input is retained by OpenAI for 30 days for abuse monitoring, then deleted. OpenAI’s terms prohibit training on API data.</li>
+        <li><strong>Anthropic (Claude)</strong> — the language model that writes the coach’s replies. It also reads meal photos you send to estimate carbs, and writes short coach texts such as your Home greeting, morning brief and lessons. The context each request needs is sent with that request. Anthropic’s enterprise terms prohibit training on this data and require deletion of inputs within 30 days.</li>
+        <li><strong>OpenAI</strong> — answers coach messages if Anthropic is unavailable (GPT), transcribes voice messages (Whisper), creates search vectors of chat messages so the coach can remember earlier conversations, and generates your personal AI-avatar. Input is retained by OpenAI for 30 days for abuse monitoring, then deleted. OpenAI’s terms prohibit training on API data.</li>
         <li><strong>Fly.io</strong> — our infrastructure host in Stockholm, Sweden. Fly.io processes data only to operate the servers.</li>
         <li><strong>Signal or Telegram</strong> — <em>only if you choose them as your coaching channel.</em> Messages then travel over Signal’s or Telegram’s network according to their respective privacy policies. Signal is end-to-end encrypted; Telegram is transport-encrypted.</li>
         <li><strong>Sentry</strong> — crash and performance diagnostics for the iOS app. An event carries the app version, the device model, and the stack trace. We run the Sentry SDK with <code>sendDefaultPii</code> switched off, so an event does not carry your user id or your email address, and we never send health data to Sentry.</li>
         <li><strong>Payment and tax records</strong> — Apple provides sales reports; we retain those for statutory tax and accounting periods.</li>
       </ul>
+      <p><strong>AI services and your permission.</strong> Nothing is sent to Anthropic or OpenAI until you tap <em>Allow</em> on the AI screen in the app, which names both providers. Our server enforces the same rule: until you have allowed it, no AI text is generated for you and the coach uses fixed texts instead. You can withdraw your permission at any time in Settings → Coach; the rest of the app keeps working. Every third party we share your data with provides the same or equal protection of your data as described in this policy.</p>
       <p>We do not sell your data. We do not authorise these processors to use your data for their own purposes.</p>
 
       <p><strong>Sharing with people you invite.</strong> Separately from the processors above, inRange lets you invite a person — a partner, a parent, a friend — to follow you, using a care link. An invited follower can read your glucose values and your coach threads. A cheer they write reaches you inside the app in their own words. A photo you attach to a meal challenge is stored on our servers and is visible to both participants of that challenge. This is sharing with a human being, not with a processor, and none of it happens unless you send the invitation.</p>
