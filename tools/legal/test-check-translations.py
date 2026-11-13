@@ -66,7 +66,7 @@ CASES = [
     # (namn, mutation, sida som ska pekas ut, krav som ska brista)
     (
         "engelskan bumpas utan att översättningarna följer med",
-        lambda r: edit(r, "terms.html", lambda t: t.replace("2026-09-26", "2026-10-01")),
+        lambda r: edit(r, "terms.html", lambda t: t.replace("2026-11-13", "2026-11-20")),
         "terms-sv.html", "version",
     ),
     (
@@ -108,7 +108,7 @@ CASES = [
         "engelskan bär en källnot den inte ska ha",
         lambda r: edit(r, "terms.html", lambda t: t.replace(
             "    <p style=\"color:var(--fg-1);margin-bottom:24px\">",
-            '    <p>This page is a translation of the English terms, version <strong>2026-09-26</strong>. <a href="terms.html">Read the English original</a>.</p>\n'
+            '    <p>This page is a translation of the English terms, version <strong>2026-11-13</strong>. <a href="terms.html">Read the English original</a>.</p>\n'
             "    <p style=\"color:var(--fg-1);margin-bottom:24px\">", 1)),
         "terms.html", "källnot",
     ),

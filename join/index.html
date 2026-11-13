@@ -47,6 +47,7 @@
     </p>
   </main>
 
+  <script src="/appstore.js"></script>
   <script>
     (function () {
       var API = "https://inrange-api.fly.dev";
@@ -95,8 +96,13 @@
       document.getElementById("headline").textContent = c.titleGeneric;
       document.getElementById("subhead").textContent = c.sub;
       document.getElementById("explainer").textContent = c.explainer;
+      var STORE = window.INRANGE_APPSTORE;
+      if (STORE && STORE.live) {
+        c.cta = sv ? "Hämta inRange i App Store" : "Get inRange on the App Store";
+        c.steps[0] = sv ? "Ladda ner inRange från App Store." : "Download inRange from the App Store.";
+      }
       document.getElementById("install-cta").textContent = c.cta;
-      document.getElementById("install-cta").href = TESTFLIGHT;
+      document.getElementById("install-cta").href = (STORE && STORE.live) ? STORE.url : TESTFLIGHT;
       var stepsEl = document.getElementById("steps");
       stepsEl.innerHTML = "";
       c.steps.forEach(function (s) {

@@ -82,7 +82,7 @@
           <span class="step-title">Install the inRange app</span>
         </div>
         <p class="step-body">
-          Free beta via TestFlight. Tap the button below and sign in with your Apple ID.
+          <span id="install-body">Free beta via TestFlight. Tap the button below and sign in with your Apple ID.</span>
         </p>
         <a class="store-badge" id="store-badge" href="https://testflight.apple.com/join/j6umwvnr"
            aria-label="Install inRange via TestFlight">
@@ -134,11 +134,19 @@
     </p>
   </main>
 
+  <script src="/appstore.js"></script>
   <script>
     (function () {
       var params = new URLSearchParams(window.location.search);
       var token = params.get("token") || "";
       var isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+
+      var STORE = window.INRANGE_APPSTORE;
+      if (STORE && STORE.live) {
+        document.getElementById("install-body").textContent =
+          "Download it from the App Store. Tap the button below and sign in with your Apple ID.";
+        STORE.useStoreBadge("store-badge");
+      }
 
       var display = document.getElementById("token-display");
       var copyBtn = document.getElementById("copy-btn");
