@@ -156,6 +156,7 @@
     </p>
   </main>
 
+  <script src="/appstore.js"></script>
   <script>
     (function () {
       var API = "https://inrange-api.fly.dev";
@@ -228,6 +229,13 @@
       text("open-body", c.openBody);
       text("open-app", c.openCta);
       text("install-title", c.installTitle);
+      var STORE = window.INRANGE_APPSTORE;
+      if (STORE && STORE.live) {
+        c.installBody = sv
+          ? "Ladda ner inRange från App Store, logga in med ditt Apple-ID och kom sedan tillbaka hit och tryck på steg 1."
+          : "Download inRange from the App Store, sign in with your Apple ID, then come back here and tap step 1.";
+        STORE.useStoreBadge("store-badge");
+      }
       text("install-body", c.installBody);
       text("consent-note", c.consent);
       text("dead-title", c.deadTitle);

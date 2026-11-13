@@ -1,5 +1,15 @@
 # inrange-landing
 
+> **Publishing:** the site is served by **GitHub Pages straight from `main`**
+> (apex A records → 185.199.108–111.153, `www` → `inopiacom.github.io`).
+> Anything merged to `main` is live within minutes. The Cloudflare notes
+> further down are historical; `_headers` and `wrangler.toml` are not used.
+>
+> **App Store switch:** `appstore.js` holds `APP_STORE_LIVE`. While `false`,
+> pages say "Coming soon to the App Store" and invite pages keep TestFlight.
+> Flip it to `true` once inRange is released to show Apple's badge and
+> point every install step at https://apps.apple.com/app/id6788735095.
+
 Static landing page for **inRange AI** — served from `https://getinrange.ai` (and `https://getinrange.com` → 301 redirect to `.ai`).
 
 ## Structure
@@ -8,7 +18,7 @@ Static landing page for **inRange AI** — served from `https://getinrange.ai` (
 inrange-landing/
 ├── wrangler.toml       # Cloudflare Workers Static Assets config
 ├── public/             # Everything served on the public URL
-│   ├── index.html      # Hero + values + Founders Pass + waitlist + FAQ
+│   ├── index.html      # Hero + features + screenshots + pricing + download + FAQ
 │   ├── privacy.html    # Placeholder privacy policy
 │   ├── terms.html      # Placeholder terms of service
 │   ├── security.html   # Security posture + vuln-disclosure
