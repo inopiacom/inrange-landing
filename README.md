@@ -67,7 +67,7 @@ Update `action="https://formspree.io/f/REPLACE_ME"` in `index.html` with your Fo
 
 - Formspree endpoint (`REPLACE_ME`)
 - Privacy, Terms, Security pages contain short placeholder text
-- `og.png` for social preview — needs to be added (1200×630px)
+- `og.png` for social preview, 1200×630 (source: ~/work/og-2026-11-17/og.html). Bump `?v=` in og:image/twitter:image when replaced.
 - No favicon yet
 
 ## License
