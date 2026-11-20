@@ -13,7 +13,7 @@
 // Without JavaScript the pages stay in the "coming soon" state, which is the
 // safe direction: it never shows a badge that leads nowhere.
 (function () {
-  var APP_STORE_LIVE = false;
+  var APP_STORE_LIVE = true;
   var APP_STORE_URL = 'https://apps.apple.com/app/id6788735095';
 
   var root = document.documentElement;
