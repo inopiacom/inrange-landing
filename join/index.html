@@ -29,14 +29,14 @@
 
     <div class="join-card">
       <p style="margin-top:0;" id="explainer">
-        inRange helps you stay on top of your diabetes in real time — with a friendly coach and
+        inRange is a gamified diabetes companion — with fun challenges, a friendly AI coach and
         support from the people who care about you.
       </p>
-      <a class="join-cta" id="install-cta" href="https://testflight.apple.com/join/j6umwvnr">
-        Open TestFlight &amp; install
+      <a class="join-cta" id="install-cta" href="https://apps.apple.com/app/id6788735095">
+        Get inRange on the App Store
       </a>
       <ol class="join-steps" id="steps">
-        <li>Install inRange from TestFlight (free beta).</li>
+        <li>Download inRange from the App Store.</li>
         <li>Open the app and sign in with Apple.</li>
         <li>You'll be connected automatically — no code to type.</li>
       </ol>
@@ -69,10 +69,10 @@
           title: function (n) { return n + " is inviting you to inRange"; },
           titleGeneric: "You're invited to inRange",
           sub: "Someone who cares about you wants to help support your diabetes with inRange.",
-          explainer: "inRange helps you stay on top of your diabetes in real time — with a friendly coach and support from the people who care about you.",
-          cta: "Open TestFlight & install",
+          explainer: "inRange is a gamified diabetes companion — with fun challenges, a friendly AI coach and support from the people who care about you.",
+          cta: "Get inRange on the App Store",
           steps: [
-            "Install inRange from TestFlight (free beta).",
+            "Download inRange from the App Store.",
             "Open the app and sign in with Apple.",
             "You'll be connected automatically — no code to type."
           ]
@@ -81,10 +81,10 @@
           title: function (n) { return n + " bjuder in dig till inRange"; },
           titleGeneric: "Du är inbjuden till inRange",
           sub: "Någon som bryr sig om dig vill hjälpa till med din diabetes via inRange.",
-          explainer: "inRange hjälper dig hålla koll på din diabetes i realtid — med en varm coach och stöd från dem som bryr sig om dig.",
-          cta: "Öppna TestFlight & installera",
+          explainer: "inRange är en gamifierad diabeteskompanjon — med roliga utmaningar, en varm AI-coach och stöd från dem som bryr sig om dig.",
+          cta: "Hämta inRange i App Store",
           steps: [
-            "Installera inRange från TestFlight (gratis beta).",
+            "Ladda ner inRange från App Store.",
             "Öppna appen och logga in med Apple.",
             "Du kopplas ihop automatiskt — ingen kod att skriva."
           ]
@@ -97,12 +97,12 @@
       document.getElementById("subhead").textContent = c.sub;
       document.getElementById("explainer").textContent = c.explainer;
       var STORE = window.INRANGE_APPSTORE;
-      if (STORE && STORE.live) {
-        c.cta = sv ? "Hämta inRange i App Store" : "Get inRange on the App Store";
-        c.steps[0] = sv ? "Ladda ner inRange från App Store." : "Download inRange from the App Store.";
+      if (STORE && !STORE.live) {
+        c.cta = sv ? "Öppna TestFlight & installera" : "Open TestFlight & install";
+        c.steps[0] = sv ? "Installera inRange från TestFlight." : "Install inRange from TestFlight.";
       }
       document.getElementById("install-cta").textContent = c.cta;
-      document.getElementById("install-cta").href = (STORE && STORE.live) ? STORE.url : TESTFLIGHT;
+      document.getElementById("install-cta").href = (STORE && !STORE.live) ? TESTFLIGHT : "https://apps.apple.com/app/id6788735095";
       var stepsEl = document.getElementById("steps");
       stepsEl.innerHTML = "";
       c.steps.forEach(function (s) {

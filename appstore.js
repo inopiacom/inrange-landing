@@ -10,8 +10,11 @@
 // install steps on the invite pages (join/, l/, friends/accept.html) at the
 // App Store instead of TestFlight, with matching copy.
 //
-// Without JavaScript the pages stay in the "coming soon" state, which is the
-// safe direction: it never shows a badge that leads nowhere.
+// inRange has been in the App Store since 1.0.1, so the static HTML now
+// defaults to the App Store everywhere (badge visible, App Store links) and
+// works without JavaScript. Setting this to false only hides the badge on the
+// home page and points join/ back at TestFlight; l/ and friends/accept.html
+// link to the App Store in their static HTML.
 (function () {
   var APP_STORE_LIVE = true;
   var APP_STORE_URL = 'https://apps.apple.com/app/id6788735095';
