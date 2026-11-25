@@ -729,11 +729,11 @@ details p {
 
 
 /* App Store availability gate. appstore.js sets data-appstore on <html>.
-   Without JavaScript the attribute is missing and the page behaves as "soon":
-   the badge is never shown for an app that isn't in the store yet (Apple's
-   badge guidelines only allow it as a link to an available app). */
-html:not([data-appstore='live']) .when-live { display: none !important; }
-html[data-appstore='live'] .when-soon { display: none !important; }
+   inRange is in the App Store, so the default (no JavaScript, attribute
+   missing) is "live": the badge shows. Only an explicit data-appstore='soon'
+   (APP_STORE_LIVE = false in appstore.js) hides it again. */
+html[data-appstore='soon'] .when-live { display: none !important; }
+html:not([data-appstore='soon']) .when-soon { display: none !important; }
 
 /* Official Apple badge, unmodified artwork. Apple asks for at least 40px
    on screen and clear space of a quarter of the badge height around it. */
@@ -771,9 +771,9 @@ html[data-appstore='live'] .when-soon { display: none !important; }
 }
 .screens-row {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
-  max-width: 1040px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 16px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 .screens-row img {
@@ -782,11 +782,11 @@ html[data-appstore='live'] .when-soon { display: none !important; }
   border-radius: 22px;
   box-shadow: var(--shadow-glow);
 }
-@media (max-width: 760px) {
+@media (max-width: 1000px) {
   .screens-row {
     grid-template-columns: none;
     grid-auto-flow: column;
-    grid-auto-columns: 62%;
+    grid-auto-columns: minmax(200px, 62%);
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     padding-bottom: 12px;
